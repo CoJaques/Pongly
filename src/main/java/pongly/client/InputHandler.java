@@ -1,35 +1,46 @@
 package pongly.client;
 
 import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.screen.Screen;
 import pongly.client.game.Paddle;
 
 import java.io.IOException;
 
 public class InputHandler {
 
-    private final Screen screen;
+    private final DisplayManager display;
     private final Paddle playerPaddle;
     private final Paddle aiPaddle;
     private boolean exit;
 
-    public InputHandler(Screen screen, Paddle playerPaddle, Paddle aiPaddle) {
-        this.screen = screen;
+    public InputHandler(DisplayManager display, Paddle playerPaddle, Paddle aiPaddle) {
+        this.display = display;
         this.playerPaddle = playerPaddle;
         this.aiPaddle = aiPaddle;
         this.exit = false;
     }
 
     public void processInput() throws IOException {
-        KeyStroke keyStroke = screen.pollInput();
+        KeyStroke keyStroke = display.getScreen().pollInput();
 
-        if (keyStroke != null && keyStroke.getKeyType() == KeyType.Character && keyStroke.getCharacter() == 'q') {
-            exit = true;
-        } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.ArrowUp) {
-            playerPaddle.moveUp();
-        } else if (keyStroke != null && keyStroke.getKeyType() == KeyType.ArrowDown) {
-            playerPaddle.moveDown(screen.getTerminalSize().getRows());
+        if (keyStroke == null)
+            return;
+
+        switch (keyStroke.getKeyType()) {
+            case ArrowUp:
+                if (playerPaddle.getY() > 0) {
+                    playerPaddle.moveUp();
+                }
+                break;
+            case ArrowDown:
+                if (playerPaddle.getY() < display.getScreenHeight() - 1) {
+                    playerPaddle.moveDown();
+                }
+                break;
+            case Character:
+                if (keyStroke.getCharacter() == 'q') {
+                    exit = true;
+                }
+                break;
         }
     }
 

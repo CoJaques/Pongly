@@ -11,7 +11,6 @@ public class CliController {
 
     private final InputHandler inputHandler;
     private DisplayManager displayManager;
-    private boolean gameRunning;
     private Paddle playerOnePaddle;
     private Paddle playerTwoPaddle;
     private Ball ball;
@@ -22,7 +21,7 @@ public class CliController {
         this.playerTwoPaddle = playerTwoPaddle;
         this.ball = ball;
         this.displayManager = displayManager;
-        this.inputHandler = new InputHandler(displayManager.getScreen(), playerOnePaddle, playerTwoPaddle);
+        this.inputHandler = new InputHandler(displayManager, playerOnePaddle, playerTwoPaddle);
 
         gameObjects = new ArrayList<>();
         gameObjects.add(playerOnePaddle);
@@ -38,7 +37,7 @@ public class CliController {
                 checkCollisions();          // Vérifier les collisions
                 renderGame();               // Rendu du jeu sur l'écran
 
-                Thread.sleep(50);           // Petite pause pour contrôler la vitesse de la boucle de jeu
+                Thread.sleep(75);           // Petite pause pour contrôler la vitesse de la boucle de jeu
             } catch (Exception e) {
                 e.printStackTrace();
                 // Handle exception
@@ -51,7 +50,6 @@ public class CliController {
             displayManager.draw(gameObjects);
         } catch (Exception e) {
             e.printStackTrace();
-            // Handle exception
         }
     }
 
@@ -60,7 +58,6 @@ public class CliController {
     }
 
     private void checkCollisions() {
-
         if (ball.getY() <= 0 || ball.getY() >= displayManager.getScreenHeight() - 1) {
             ball.reverseYDirection();
         }
@@ -70,7 +67,7 @@ public class CliController {
             ball.reverseXDirection();
         }
 
-        if(ball.getX() == displayManager.getScreenWidth() || ball.getX() == 0)
+        if (ball.getX() == displayManager.getScreenWidth() || ball.getX() == 0)
             ball.reverseXDirection();
     }
 }

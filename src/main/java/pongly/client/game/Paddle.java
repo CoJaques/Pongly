@@ -6,10 +6,10 @@ public class Paddle extends DrawableObject {
     }
 
     public void moveUp() {
-        if (y > 0) y--; // TODO avoid overload
+        y--;
     }
 
-    public void moveDown(int screenHeight) {
-        if (y < screenHeight) y++;
+    public void moveDown() {
+        y++;
     }
 }
