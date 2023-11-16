@@ -7,10 +7,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is responsible for handling user input.
+ */
 public class InputHandler {
-    private boolean IsStopRequested = false;
     private final DisplayManager display;
     private final List<KeyListener> listeners = new ArrayList<>();
+    private boolean IsStopRequested = false;
     private final Thread inputThread = new Thread(() -> {
         try {
             this.processInput();
@@ -19,15 +22,26 @@ public class InputHandler {
         }
     });
 
+    /**
+     * @param display DisplayManager instance
+     */
     public InputHandler(DisplayManager display) {
         this.display = display;
         inputThread.start();
     }
 
+    /**
+     * add a listener to the list of KeyEvent listeners
+     *
+     * @param listener KeyListener instance
+     */
     public void addListener(KeyListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Launch the exit process of the inputHandler
+     */
     public void triggerExit() {
         IsStopRequested = true;
 
@@ -38,6 +52,12 @@ public class InputHandler {
         }
     }
 
+    /**
+     * Process the input from the user
+     * Notify each listener when an input is pressed
+     *
+     * @throws IOException if an I/O error occurs
+     */
     private void processInput() throws IOException {
         while (!IsStopRequested) {
             KeyStroke keyStroke = display.getScreen().readInput();

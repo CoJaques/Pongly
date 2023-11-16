@@ -5,6 +5,24 @@ package pongly.client.game;
  */
 public abstract class DrawableObject {
 
+    private final String displayString;
+    /**
+     * The top left corner x coordinate
+     */
+    protected int x;
+    /**
+     * The top left corner y coordinate
+     */
+    protected int y;
+    /**
+     * The width of the object
+     */
+    protected int width;
+    /**
+     * The height of the object
+     */
+    protected int height;
+
     /**
      * Creates a new DrawableObject
      *
@@ -32,28 +50,6 @@ public abstract class DrawableObject {
     public DrawableObject(int x, int y, String displayString) {
         this(x, y, 1, 1, displayString);
     }
-
-    private final String displayString;
-
-    /**
-     * The top left corner x coordinate
-     */
-    protected int x;
-
-    /**
-     * The top left corner y coordinate
-     */
-    protected int y;
-
-    /**
-     * The width of the object
-     */
-    protected int width;
-
-    /**
-     * The height of the object
-     */
-    protected int height;
 
     /**
      * @return the string to display for this object
