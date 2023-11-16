@@ -1,5 +1,9 @@
 package pongly.client;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import pongly.client.InputManager.InputHandler;
+import pongly.client.InputManager.KeyListener;
 import pongly.client.game.Ball;
 import pongly.client.game.DrawableObject;
 import pongly.client.game.Paddle;
@@ -7,21 +11,23 @@ import pongly.client.game.Paddle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CliController {
+public class CliController implements KeyListener {
 
     private final InputHandler inputHandler;
-    private DisplayManager displayManager;
-    private Paddle playerOnePaddle;
-    private Paddle playerTwoPaddle;
-    private Ball ball;
-    private List<DrawableObject> gameObjects;
+    private final DisplayManager displayManager;
+    private final Paddle playerOnePaddle;
+    private final Ball ball;
+    private final List<DrawableObject> gameObjects;
+
+    private KeyStroke lastInput;
 
     public CliController(DisplayManager displayManager, Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
         this.playerOnePaddle = playerOnePaddle;
-        this.playerTwoPaddle = playerTwoPaddle;
         this.ball = ball;
         this.displayManager = displayManager;
-        this.inputHandler = new InputHandler(displayManager, playerOnePaddle, playerTwoPaddle);
+
+        inputHandler = new InputHandler(displayManager);
+        inputHandler.addListener(this);
 
         gameObjects = new ArrayList<>();
         gameObjects.add(playerOnePaddle);
@@ -30,19 +36,37 @@ public class CliController {
     }
 
     public void run() {
-        while (!inputHandler.shouldExit()) {
+        while (continueGameConditions()) {
             try {
-                inputHandler.processInput(); // Process input
-                updateGameObjects();         // Mise à jour des objets du jeu
-                checkCollisions();          // Vérifier les collisions
-                renderGame();               // Rendu du jeu sur l'écran
+                updateGameObjects();
+                checkCollisions();
+                renderGame();
 
-                Thread.sleep(75);           // Petite pause pour contrôler la vitesse de la boucle de jeu
+                Thread.sleep(75);
             } catch (Exception e) {
                 e.printStackTrace();
                 // Handle exception
             }
         }
+
+        inputHandler.triggerExit();
+
+    }
+
+    @Override
+    public void onKeyPressed(KeyStroke keyStroke) {
+        lastInput = keyStroke;
+        if (keyStroke.getKeyType() == KeyType.ArrowUp) {
+            if (playerOnePaddle.getY() > 0)
+                playerOnePaddle.moveUp();
+        } else if (keyStroke.getKeyType() == KeyType.ArrowDown) {
+            if (playerOnePaddle.getY() < displayManager.getScreenHeight() - 1)
+                playerOnePaddle.moveDown();
+        }
+    }
+
+    private boolean continueGameConditions() {
+        return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
     }
 
     private void renderGame() {
