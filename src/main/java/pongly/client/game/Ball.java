@@ -5,6 +5,9 @@ package pongly.client.game;
  */
 public class Ball extends DrawableObject {
 
+    private int xVelocity = 1;
+    private int yVelocity = 0;
+
     /**
      * Creates a new Ball
      *
@@ -14,9 +17,6 @@ public class Ball extends DrawableObject {
     public Ball(int x, int y) {
         super(x, y, "O");
     }
-
-    private int xVelocity = 1;
-    private int yVelocity = 0;
 
     /**
      * updates the position of the ball

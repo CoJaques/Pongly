@@ -11,6 +11,9 @@ import pongly.client.game.Paddle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is responsible for handling the game logic
+ */
 public class CliController implements KeyListener {
 
     private final static int REFRESH_FREQUENCY = 100;
@@ -22,6 +25,12 @@ public class CliController implements KeyListener {
     private final List<DrawableObject> gameObjects;
     private KeyStroke lastInput;
 
+    /**
+     * @param displayManager  DisplayManager instance
+     * @param playerOnePaddle Paddle instance
+     * @param playerTwoPaddle Paddle instance
+     * @param ball            Ball instance
+     */
     public CliController(DisplayManager displayManager, Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
         this.playerOnePaddle = playerOnePaddle;
         this.playerTwoPaddle = playerTwoPaddle;
@@ -37,6 +46,9 @@ public class CliController implements KeyListener {
         gameObjects.add(ball);
     }
 
+    /**
+     * Run the game
+     */
     public void run() {
         try {
             while (continueGameConditions()) {
