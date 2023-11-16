@@ -29,7 +29,7 @@ public class DisplayManager {
         screen.doResizeIfNecessary();
     }
 
-    public void draw(List<DrawableObject> objects) throws IOException {
+    public void drawObjects(List<DrawableObject> objects) throws IOException {
         screen.clear();
 
         TextGraphics textGraphics = screen.newTextGraphics();
@@ -37,10 +37,16 @@ public class DisplayManager {
         textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
 
         for (var object : objects) {
-            textGraphics.putString(object.getX(), object.getY(), object.getDisplayString());
+            drawObject(object, textGraphics);
         }
 
         screen.refresh();
+    }
+
+    private void drawObject(DrawableObject object, TextGraphics textGraphics) throws IOException{
+        for(int i = 0; i < object.getWidth(); i++)
+            for(int j = 0; j < object.getHeight(); j++)
+                textGraphics.putString(object.getX() + i, object.getY() + j, object.getDisplayString());
     }
 
     public void clear() throws IOException {

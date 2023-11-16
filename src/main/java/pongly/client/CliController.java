@@ -13,16 +13,18 @@ import java.util.List;
 
 public class CliController implements KeyListener {
 
+    private final static int REFRESH_FREQUENCY = 100;
     private final InputHandler inputHandler;
     private final DisplayManager displayManager;
     private final Paddle playerOnePaddle;
+    private final Paddle playerTwoPaddle;
     private final Ball ball;
     private final List<DrawableObject> gameObjects;
-
     private KeyStroke lastInput;
 
     public CliController(DisplayManager displayManager, Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
         this.playerOnePaddle = playerOnePaddle;
+        this.playerTwoPaddle = playerTwoPaddle;
         this.ball = ball;
         this.displayManager = displayManager;
 
@@ -36,21 +38,19 @@ public class CliController implements KeyListener {
     }
 
     public void run() {
-        while (continueGameConditions()) {
-            try {
+        try {
+            while (continueGameConditions()) {
                 updateGameObjects();
                 checkCollisions();
                 renderGame();
-
-                Thread.sleep(75);
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Handle exception
+                Thread.sleep(REFRESH_FREQUENCY);
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            inputHandler.triggerExit();
+        } finally {
+            inputHandler.triggerExit();
         }
-
-        inputHandler.triggerExit();
-
     }
 
     @Override
@@ -60,7 +60,7 @@ public class CliController implements KeyListener {
             if (playerOnePaddle.getY() > 0)
                 playerOnePaddle.moveUp();
         } else if (keyStroke.getKeyType() == KeyType.ArrowDown) {
-            if (playerOnePaddle.getY() < displayManager.getScreenHeight() - 1)
+            if (playerOnePaddle.getY() + playerOnePaddle.getHeight() < displayManager.getScreenHeight() - 1)
                 playerOnePaddle.moveDown();
         }
     }
@@ -71,7 +71,7 @@ public class CliController implements KeyListener {
 
     private void renderGame() {
         try {
-            displayManager.draw(gameObjects);
+            displayManager.drawObjects(gameObjects);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,12 +86,32 @@ public class CliController implements KeyListener {
             ball.reverseYDirection();
         }
 
-        if (ball.getX() == playerOnePaddle.getX() && ball.getY() >= playerOnePaddle.getY() &&
-                ball.getY() <= playerOnePaddle.getY()) {
+        if (ball.getX() == displayManager.getScreenWidth() || ball.getX() == 0) {
             ball.reverseXDirection();
         }
 
-        if (ball.getX() == displayManager.getScreenWidth() || ball.getX() == 0)
+        manageBallCollisionWithPaddle(playerOnePaddle);
+        manageBallCollisionWithPaddle(playerTwoPaddle);
+    }
+
+    private void manageBallCollisionWithPaddle(Paddle paddle) {
+        if (ball.getX() == paddle.getX() && ball.getY() >= paddle.getY() &&
+                ball.getY() <= paddle.getY() + paddle.getHeight()) {
             ball.reverseXDirection();
+
+            int delta = ball.getY() - (paddle.getY() + paddle.getHeight() / 2);
+
+            if (delta == 0) {
+                ball.goStraight();
+            } else if (ball.getYVelocity() == 0) {
+                if (delta > 0) {
+                    ball.goDiagonalDown();
+                } else {
+                    ball.goDiagonalUp();
+                }
+            } else {
+                ball.reverseYDirection();
+            }
+        }
     }
 }
