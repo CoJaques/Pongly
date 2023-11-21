@@ -1,4 +1,4 @@
-package pongly.client.game;
+package pongly.common;
 
 /**
  * A class that represents  a paddle in the game

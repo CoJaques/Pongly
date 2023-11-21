@@ -39,7 +39,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>pongly.Launcher</mainClass>
+                            <mainClass>pongly.client.Launcher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

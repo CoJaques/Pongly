@@ -7,10 +7,13 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import pongly.client.game.DrawableObject;
+import pongly.common.DrawableObject;
 
 import java.io.IOException;
 import java.util.List;
+
+import static pongly.common.Utils.SCREEN_HEIGHT;
+import static pongly.common.Utils.SCREEN_WIDTH;
 
 /**
  * This class is responsible for handling the display
@@ -18,8 +21,6 @@ import java.util.List;
 public class DisplayManager {
     private final Terminal terminal;
     private final Screen screen;
-    private final int screenHeight;
-    private final int screenWidth;
 
     /**
      * @param column The width of the screen
@@ -27,9 +28,7 @@ public class DisplayManager {
      * @throws IOException if an I/O error occurs
      */
     public DisplayManager(int column, int row) throws IOException {
-        screenHeight = row;
-        screenWidth = column;
-        TerminalSize defaultTerminalSize = new TerminalSize(screenWidth, screenHeight);
+        TerminalSize defaultTerminalSize = new TerminalSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         DefaultTerminalFactory factory = new DefaultTerminalFactory().setInitialTerminalSize(defaultTerminalSize);
         terminal = factory.createTerminal();
         screen = new TerminalScreen(terminal);
@@ -73,20 +72,6 @@ public class DisplayManager {
      */
     public void close() throws IOException {
         screen.close();
-    }
-
-    /**
-     * @return the height of the screen
-     */
-    public int getScreenHeight() {
-        return screenHeight;
-    }
-
-    /**
-     * @return the width of the screen
-     */
-    public int getScreenWidth() {
-        return screenWidth;
     }
 
     /**

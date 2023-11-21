@@ -1,9 +1,7 @@
-package pongly;
+package pongly.client;
 
-import pongly.client.CliController;
-import pongly.client.DisplayManager;
-import pongly.client.game.Ball;
-import pongly.client.game.Paddle;
+import pongly.common.Ball;
+import pongly.common.Paddle;
 
 import java.io.IOException;
 

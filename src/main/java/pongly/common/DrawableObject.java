@@ -1,4 +1,4 @@
-package pongly.client.game;
+package pongly.common;
 
 /**
  * A class that represents an object that can be drawn on the screen
