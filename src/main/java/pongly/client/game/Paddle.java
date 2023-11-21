@@ -13,7 +13,7 @@ public class Paddle extends DrawableObject {
      * @param height The height of the paddle
      */
     public Paddle(int x, int y, int height) {
-        super(x, y, 1, height, "|");
+        super(x, y, 1, height, "║");
     }
 
     /**

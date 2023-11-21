@@ -16,6 +16,7 @@ import java.util.List;
  * This class is responsible for handling the display
  */
 public class DisplayManager {
+    private final Terminal terminal;
     private final Screen screen;
     private final int screenHeight;
     private final int screenWidth;
@@ -30,7 +31,7 @@ public class DisplayManager {
         screenWidth = column;
         TerminalSize defaultTerminalSize = new TerminalSize(screenWidth, screenHeight);
         DefaultTerminalFactory factory = new DefaultTerminalFactory().setInitialTerminalSize(defaultTerminalSize);
-        Terminal terminal = factory.createTerminal();
+        terminal = factory.createTerminal();
         screen = new TerminalScreen(terminal);
         screen.startScreen();
         screen.setCursorPosition(null); // we don't need a cursor
@@ -99,5 +100,23 @@ public class DisplayManager {
         for (int i = 0; i < object.getWidth(); i++)
             for (int j = 0; j < object.getHeight(); j++)
                 textGraphics.putString(object.getX() + i, object.getY() + j, object.getDisplayString());
+    }
+
+    public void drawTitle() throws IOException {
+        screen.clear();
+
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.putString(0, 0, "Pongly");
+        textGraphics.putString(0, 1, "Press enter key to start");
+        screen.refresh();
+    }
+
+    public void drawLobby() throws IOException {
+        screen.clear();
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.setForegroundColor(TextColor.Factory.fromString("#000000"));
+        textGraphics.setBackgroundColor(TextColor.ANSI.WHITE_BRIGHT);
+        textGraphics.putString(0, 0, "Lobby");
+        screen.refresh();
     }
 }
