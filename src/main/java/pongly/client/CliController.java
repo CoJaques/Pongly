@@ -8,6 +8,7 @@ import pongly.client.game.Ball;
 import pongly.client.game.DrawableObject;
 import pongly.client.game.Paddle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 public class CliController implements KeyListener {
 
     private final static int REFRESH_FREQUENCY = 100;
+    private GameState gameState = GameState.INITIALIZING;
     private final InputHandler inputHandler;
     private final DisplayManager displayManager;
     private final Paddle playerOnePaddle;
@@ -46,23 +48,46 @@ public class CliController implements KeyListener {
         gameObjects.add(ball);
     }
 
-    /**
-     * Run the game
-     */
     public void run() {
         try {
             while (continueGameConditions()) {
-                updateGameObjects();
-                checkCollisions();
-                renderGame();
+                switch (gameState) {
+                    case INITIALIZING:
+                        manageInitializingState();
+                        if (lastInput != null && lastInput.getKeyType() == KeyType.Enter)
+                            gameState = GameState.PLAYING;
+                        break;
+                    case LOBBY:
+                        manageLobbyState();
+                        break;
+                    case PLAYING:
+                        managePlayingState();
+                        break;
+                }
                 Thread.sleep(REFRESH_FREQUENCY);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
-            inputHandler.triggerExit();
         } finally {
             inputHandler.triggerExit();
         }
+    }
+
+    private void manageLobbyState() throws IOException {
+        displayManager.drawLobby();
+    }
+
+    private void manageInitializingState() throws IOException {
+        displayManager.drawTitle();
+    }
+
+    /**
+     * Run the game
+     */
+    public void managePlayingState() throws IOException {
+        updateGameObjects();
+        checkCollisions();
+        renderGame();
     }
 
     @Override
@@ -81,12 +106,8 @@ public class CliController implements KeyListener {
         return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
     }
 
-    private void renderGame() {
-        try {
-            displayManager.drawObjects(gameObjects);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private void renderGame() throws IOException {
+        displayManager.drawObjects(gameObjects);
     }
 
     private void updateGameObjects() {
