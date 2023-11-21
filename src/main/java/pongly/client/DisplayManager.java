@@ -105,12 +105,9 @@ public class DisplayManager {
     public void drawTitle() throws IOException {
         screen.clear();
 
-        terminal.setBackgroundColor(TextColor.ANSI.WHITE_BRIGHT);
-        terminal.setForegroundColor(TextColor.ANSI.WHITE_BRIGHT);
         TextGraphics textGraphics = screen.newTextGraphics();
-        textGraphics.setForegroundColor(TextColor.Factory.fromString("#000000"));
-        textGraphics.setBackgroundColor(TextColor.ANSI.WHITE_BRIGHT);
         textGraphics.putString(0, 0, "Pongly");
+        textGraphics.putString(0, 1, "Press enter key to start");
         screen.refresh();
     }
 
