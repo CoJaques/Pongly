@@ -29,4 +29,8 @@ public class Paddle extends DrawableObject {
     public void moveDown() {
         y++;
     }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 }

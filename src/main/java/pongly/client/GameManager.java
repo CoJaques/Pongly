@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static pongly.common.Utils.SCREEN_HEIGHT;
+import static pongly.common.Utils.SCREEN_WIDTH;
 
 /**
  * This class is responsible for handling the game logic
  */
-public class CliController implements KeyListener {
+public class GameManager implements KeyListener {
 
     private final static int REFRESH_FREQUENCY = 100;
     private GameState gameState = GameState.INITIALIZING;
@@ -29,17 +30,19 @@ public class CliController implements KeyListener {
     private final List<DrawableObject> gameObjects;
     private KeyStroke lastInput;
 
+    private final PongClient client;
+
     /**
-     * @param displayManager  DisplayManager instance
-     * @param playerOnePaddle Paddle instance
-     * @param playerTwoPaddle Paddle instance
-     * @param ball            Ball instance
+     * @throws IOException if an I/O error occurs
      */
-    public CliController(DisplayManager displayManager, Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
-        this.playerOnePaddle = playerOnePaddle;
-        this.playerTwoPaddle = playerTwoPaddle;
-        this.ball = ball;
-        this.displayManager = displayManager;
+    public GameManager(String host, int port) throws IOException {
+
+        this.displayManager = new DisplayManager(SCREEN_WIDTH, SCREEN_HEIGHT);
+        client = new PongClient(host, port, this);
+
+        this.playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
+        this.playerTwoPaddle = new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3);
+        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
@@ -68,6 +71,8 @@ public class CliController implements KeyListener {
                 }
                 Thread.sleep(REFRESH_FREQUENCY);
             }
+            displayManager.close();
+
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         } finally {
@@ -93,9 +98,24 @@ public class CliController implements KeyListener {
             if (playerOnePaddle.getY() + playerOnePaddle.getHeight() < SCREEN_HEIGHT - 1)
                 playerOnePaddle.moveDown();
         }
+
+        client.updatePosition();
     }
 
     private boolean continueGameConditions() {
         return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
+    }
+
+    public int getPlayerOnePaddleY() {
+        return playerOnePaddle.getY();
+    }
+
+    public void setPlayerTwoPaddleY(int y) {
+        playerTwoPaddle.setY(y);
+    }
+
+    public void updateBallPosition(int xBalle, int yBalle) {
+        ball.setX(xBalle);
+        ball.setY(yBalle);
     }
 }

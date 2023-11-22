@@ -67,4 +67,12 @@ public class Ball extends DrawableObject {
     public int getYVelocity() {
         return yVelocity;
     }
+
+    public int setX(int x) {
+        return this.x = x;
+    }
+
+    public int setY(int y) {
+        return this.y = y;
+    }
 }

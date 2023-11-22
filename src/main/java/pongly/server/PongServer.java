@@ -2,33 +2,56 @@ package pongly.server;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PongServer {
-    private static final int PORT = 1234;
-    private static final int SERVER_ID = (int) (Math.random() * 1000000);
-    private static final int NUMBER_OF_THREADS = 2;
-    private static final String TEXTUAL_DATA = "👋 from Server " + SERVER_ID;
+    private static final int PORT = 1313;
+    private static final int NUMBER_OF_THREADS = 10;
+    private final List<Party> parties = new ArrayList<>();
 
     public static void main(String[] args) {
-        ExecutorService executor = null;
+        new PongServer().startServer();
+    }
+
+    public void startServer() {
+        ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+            System.out.println("Pong Server is running...");
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                executor.submit(new ClientHandler(clientSocket));
+                Party party = findAvailableParty();
 
-                // add player to a party, create new party when 2 players are connected
+                ClientHandler handler = new ClientHandler(clientSocket, party);
+
+                System.out.println("New client connected from " + clientSocket.getInetAddress().getHostAddress());
+
+                party.addPlayer(handler);
+                executor.submit(handler);
+
+                if (party.isFull()) {
+                    party.startGame(); // Commence la partie quand deux joueurs sont connectés
+                }
             }
         } catch (IOException e) {
-            System.out.println("[Server " + SERVER_ID + "] exception: " + e);
+            System.out.println("Server exception: " + e);
         } finally {
-            if (executor != null) {
-                executor.shutdown();
+            executor.shutdown();
+        }
+    }
+
+    private Party findAvailableParty() {
+        for (Party party : parties) {
+            if (!party.isFull()) {
+                return party;
             }
         }
+        Party newParty = new Party();
+        parties.add(newParty);
+        return newParty;
     }
 }

@@ -2,23 +2,56 @@ package pongly.server;
 
 import pongly.common.Ball;
 import pongly.common.Paddle;
+import pongly.common.Utils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static pongly.common.Utils.SCREEN_HEIGHT;
 import static pongly.common.Utils.SCREEN_WIDTH;
 
 public class Party {
 
-    private final Paddle playerOnePaddle;
-    private final Paddle playerTwoPaddle;
+    private final List<ClientHandler> players = new ArrayList<>();
     private final Ball ball;
+    Paddle playerOnePaddle;
+    Paddle playerTwoPaddle;
 
-    public Party(Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
-        this.playerOnePaddle = playerOnePaddle;
-        this.playerTwoPaddle = playerTwoPaddle;
-        this.ball = ball;
+    public Party() {
+        ball = new Ball(SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2);
+        playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
+        playerTwoPaddle = new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3);
+    }
+
+    public void addPlayer(ClientHandler player) {
+        players.add(player);
+        // Initialiser le paddle du joueur ici si nécessaire
+    }
+
+    public boolean isFull() {
+        return players.size() == 2;
+    }
+
+    public void startGame() {
+        while (true) {
+            updateGameObjects();
+            checkCollisions();
+            try {
+                players.get(0).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY());
+                players.get(1).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            // Envoyer les positions des paddles aux joueurs
+            // Envoyer la position de la balle aux joueurs
+            // Attendre 10ms
+        }
     }
 
     private void updateGameObjects() {
+        playerOnePaddle.setY(players.get(1).clientLastPosition);
+        playerTwoPaddle.setY(players.get(1).clientLastPosition);
         ball.update();
     }
 
