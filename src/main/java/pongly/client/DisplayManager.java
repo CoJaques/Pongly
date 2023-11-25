@@ -56,16 +56,6 @@ public class DisplayManager {
     }
 
     /**
-     * Clear the screen
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    public void clear() throws IOException {
-        screen.clear();
-        screen.refresh();
-    }
-
-    /**
      * Close the screen
      *
      * @throws IOException if an I/O error occurs

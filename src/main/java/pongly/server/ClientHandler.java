@@ -1,12 +1,15 @@
 package pongly.server;
 
 import pongly.common.Message;
+import pongly.common.Utils;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class ClientHandler implements Runnable {
+
+    public int score = 0;
     private final Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
@@ -66,7 +69,15 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void sendMessage(String message) throws IOException {
+    public void updatePosition(int advPosition, int ballX, int ballY) throws IOException {
+        sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + advPosition + Utils.SEPARATOR + ballX + Utils.SEPARATOR + ballY + Utils.EndLineChar);
+    }
+
+    public void sendScore(int advScore) throws IOException {
+        sendMessage(Message.UPDATE_SCORE.name() + Utils.SEPARATOR + advScore + Utils.SEPARATOR + score + Utils.EndLineChar);
+    }
+
+    private void sendMessage(String message) throws IOException {
         out.write(message);
         out.flush();
     }

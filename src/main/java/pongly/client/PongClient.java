@@ -63,6 +63,8 @@ public class PongClient {
             case UPDATE_SERVER:
                 updateGameObjects(parts);
                 break;
+            case UPDATE_SCORE:
+                gameManager.updateScore(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
             case QUIT:
                 // TODO
                 break;

@@ -24,6 +24,8 @@ public class GameManager implements KeyListener {
     private GameState gameState = GameState.INITIALIZING;
     private final InputHandler inputHandler;
     private final DisplayManager displayManager;
+    private Score playerOneScore;
+    private Score playerTwoScore;
     private final Paddle playerOnePaddle;
     private final Paddle playerTwoPaddle;
     private final Ball ball;
@@ -47,7 +49,12 @@ public class GameManager implements KeyListener {
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
 
+        playerOneScore = new Score(SCREEN_WIDTH / 2 - 5, 1);
+        playerTwoScore = new Score(SCREEN_WIDTH / 2 + 5, 1);
+
         gameObjects = new ArrayList<>();
+        gameObjects.add(playerOneScore);
+        gameObjects.add(playerTwoScore);
         gameObjects.add(playerOnePaddle);
         gameObjects.add(playerTwoPaddle);
         gameObjects.add(ball);
@@ -117,5 +124,10 @@ public class GameManager implements KeyListener {
     public void updateBallPosition(int xBalle, int yBalle) {
         ball.setX(xBalle);
         ball.setY(yBalle);
+    }
+
+    public void updateScore(int scorePlayer1, int scorePlayer2) {
+        playerOneScore.update(scorePlayer1);
+        playerTwoScore.update(scorePlayer2);
     }
 }
