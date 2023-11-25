@@ -17,7 +17,9 @@ public class PongServer {
     }
 
     public void startServer() {
-        ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        ExecutorService clientExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        ExecutorService gameExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS / 2);
+
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Pong Server is running...");
@@ -25,22 +27,20 @@ public class PongServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 Party party = findAvailableParty();
-                ClientHandler handler = new ClientHandler(clientSocket, party);
-                executor.execute(handler);
-
-                System.out.println("New client connected from " + clientSocket.getInetAddress().getHostAddress());
+                ClientHandler handler = new ClientHandler(clientSocket);
+                clientExecutor.execute(handler);
 
                 party.addPlayer(handler);
-                executor.submit(handler);
 
                 if (party.isFull()) {
-                    party.startGame();
+                    gameExecutor.execute(party);
                 }
             }
         } catch (IOException e) {
             System.out.println("Server exception: " + e);
         } finally {
-            executor.shutdown();
+            gameExecutor.shutdown();
+            clientExecutor.shutdown();
         }
     }
 

@@ -1,6 +1,7 @@
 package pongly.server;
 
 import pongly.common.Ball;
+import pongly.common.Message;
 import pongly.common.Paddle;
 import pongly.common.Utils;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import static pongly.common.Utils.SCREEN_HEIGHT;
 import static pongly.common.Utils.SCREEN_WIDTH;
 
-public class Party {
+public class Party implements Runnable {
 
     public static int PARTY_ID = 0;
 
@@ -31,6 +32,7 @@ public class Party {
     }
 
     public void addPlayer(ClientHandler player) {
+        // TODO throw exception if full
         players.add(player);
         System.out.println("Player added to party " + id);
     }
@@ -39,7 +41,8 @@ public class Party {
         return players.size() == 2;
     }
 
-    public void startGame() {
+    @Override
+    public void run() {
 
         System.out.println("Starting game for party " + id);
 
@@ -47,8 +50,8 @@ public class Party {
             updateGameObjects();
             checkCollisions();
             try {
-                players.get(0).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
-                players.get(1).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
+                players.get(0).sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
+                players.get(1).sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + (Utils.SCREEN_WIDTH - ball.getX()) + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
 
                 Thread.sleep(100);
 

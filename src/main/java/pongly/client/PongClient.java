@@ -1,5 +1,6 @@
 package pongly.client;
 
+import pongly.common.Message;
 import pongly.common.Utils;
 
 import java.io.*;
@@ -25,7 +26,7 @@ public class PongClient {
 
     public void updatePosition() {
         try {
-            out.write(Message.UPDATE.name() + Utils.SEPARATOR + gameManager.getPlayerOnePaddleY() + Utils.EndLineChar);
+            out.write(Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerOnePaddleY() + Utils.EndLineChar);
             out.flush();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -39,21 +40,34 @@ public class PongClient {
         try {
             while (true) {
                String line = in.readLine();
-               System.out.println("Received message from server: " + line);
                processMessage(line);
             }
         } catch (Exception e) {
             e.printStackTrace();
             closeConnection();
-            // Gérer l'exception ici
         }
     }
 
     private void processMessage(String message) {
         String[] parts = message.split(";");
-        switch (parts[0]) {
-            case "POSITION_UPDATE":
+
+        Message msg;
+        try {
+            msg = Message.valueOf(parts[0]);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Unvalid message: " + parts[0]);
+            return;
+        }
+
+        switch (msg) {
+            case UPDATE_SERVER:
                 updateGameObjects(parts);
+                break;
+            case QUIT:
+                // TODO
+                break;
+            default:
+                // TODO
                 break;
         }
     }
@@ -82,7 +96,6 @@ public class PongClient {
             receiverThread.join();
         } catch (IOException e) {
             e.printStackTrace();
-            // Vous pouvez également gérer l'exception ici, par exemple en affichant un message d'erreur.
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
