@@ -25,7 +25,7 @@ public class PongClient {
 
     public void updatePosition() {
         try {
-            out.write(Message.UPDATE.name() + Utils.SEPARATOR + gameManager.getPlayerOnePaddleY() + "\n");
+            out.write(Message.UPDATE.name() + Utils.SEPARATOR + gameManager.getPlayerOnePaddleY() + Utils.EndLineChar);
             out.flush();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -34,10 +34,13 @@ public class PongClient {
     }
 
     private void receive() {
+
+        System.out.println("Waiting messages from server...");
         try {
-            String line;
-            while ((line = in.readLine()) != null) {
-                processMessage(line);
+            while (true) {
+               String line = in.readLine();
+               System.out.println("Received message from server: " + line);
+               processMessage(line);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,19 +55,16 @@ public class PongClient {
             case "POSITION_UPDATE":
                 updateGameObjects(parts);
                 break;
-            // Ajoutez d'autres cas pour d'autres types de messages
         }
     }
 
     private void updateGameObjects(String[] data) {
-        // Supposons que l'ordre est xRaquette, yRaquette, xBalle, yBalle
-        int yRaquetteAdverse = Integer.parseInt(data[1]);
-        int xBalle = Integer.parseInt(data[2]);
-        int yBalle = Integer.parseInt(data[3]);
+        int yPaddlePlayerTwo = Integer.parseInt(data[1]);
+        int xBall = Integer.parseInt(data[2]);
+        int yBall = Integer.parseInt(data[3]);
 
-        // Mettre à jour les positions dans le jeu
-        gameManager.setPlayerTwoPaddleY(yRaquetteAdverse);
-        gameManager.updateBallPosition(xBalle, yBalle);
+        gameManager.setPlayerTwoPaddleY(yPaddlePlayerTwo);
+        gameManager.updateBallPosition(xBall, yBall);
     }
 
     public void closeConnection() {

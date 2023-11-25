@@ -11,7 +11,7 @@ public class ClientHandler implements Runnable {
     private BufferedWriter out;
     private boolean running = true;
 
-    int clientLastPosition = 0;
+    private int clientLastPosition = 0;
 
     public ClientHandler(Socket socket, Party party) {
         this.socket = socket;
@@ -29,6 +29,8 @@ public class ClientHandler implements Runnable {
         try {
             while (running) {
                 String message = in.readLine();
+                System.out.println("Received message from client: " + message);
+
                 if (message != null) {
                     processMessage(message);
                 }
@@ -43,14 +45,14 @@ public class ClientHandler implements Runnable {
     private void processMessage(String message) {
         String[] parts = message.split(";");
         switch (parts[0]) {
-            case "POSITION_UPDATE":
+            case "UPDATE":
                 clientLastPosition = Integer.parseInt(parts[1]);
                 break;
-            // Autres types de messages
         }
     }
 
     public void sendMessage(String message) throws IOException {
+//        System.out.println("Sending message to client: " + message);
         out.write(message);
         out.flush();
     }

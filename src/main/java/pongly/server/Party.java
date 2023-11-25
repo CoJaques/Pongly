@@ -13,20 +13,26 @@ import static pongly.common.Utils.SCREEN_WIDTH;
 
 public class Party {
 
+    public static int PARTY_ID = 0;
+
+    private int id = PARTY_ID++;
+
     private final List<ClientHandler> players = new ArrayList<>();
     private final Ball ball;
     Paddle playerOnePaddle;
     Paddle playerTwoPaddle;
 
     public Party() {
-        ball = new Ball(SCREEN_HEIGHT / 2, SCREEN_WIDTH / 2);
+        ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
         playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
         playerTwoPaddle = new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3);
+
+        System.out.println("New party created with id " + id);
     }
 
     public void addPlayer(ClientHandler player) {
         players.add(player);
-        // Initialiser le paddle du joueur ici si nécessaire
+        System.out.println("Player added to party " + id);
     }
 
     public boolean isFull() {
@@ -34,24 +40,29 @@ public class Party {
     }
 
     public void startGame() {
+
+        System.out.println("Starting game for party " + id);
+
         while (true) {
             updateGameObjects();
             checkCollisions();
             try {
-                players.get(0).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY());
-                players.get(1).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY());
+                players.get(0).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
+                players.get(1).sendMessage("POSITION_UPDATE" + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
+
+                Thread.sleep(100);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            // Envoyer les positions des paddles aux joueurs
-            // Envoyer la position de la balle aux joueurs
-            // Attendre 10ms
         }
     }
 
     private void updateGameObjects() {
-        playerOnePaddle.setY(players.get(1).clientLastPosition);
-        playerTwoPaddle.setY(players.get(1).clientLastPosition);
+        playerOnePaddle.setY(players.get(0).getClientLastPosition());
+        playerTwoPaddle.setY(players.get(1).getClientLastPosition());
         ball.update();
     }
 

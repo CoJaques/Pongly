@@ -25,8 +25,8 @@ public class PongServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 Party party = findAvailableParty();
-
                 ClientHandler handler = new ClientHandler(clientSocket, party);
+                executor.execute(handler);
 
                 System.out.println("New client connected from " + clientSocket.getInetAddress().getHostAddress());
 
@@ -34,7 +34,7 @@ public class PongServer {
                 executor.submit(handler);
 
                 if (party.isFull()) {
-                    party.startGame(); // Commence la partie quand deux joueurs sont connectés
+                    party.startGame();
                 }
             }
         } catch (IOException e) {
