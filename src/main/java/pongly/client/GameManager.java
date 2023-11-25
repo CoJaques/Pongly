@@ -24,12 +24,11 @@ public class GameManager implements KeyListener {
     private GameState gameState = GameState.INITIALIZING;
     private final InputHandler inputHandler;
     private final DisplayManager displayManager;
-    private Score playerOneScore;
-    private Score playerTwoScore;
-    private final Paddle playerOnePaddle;
-    private final Paddle playerTwoPaddle;
+
+    private final Player player;
+    private final Player opponent;
     private final Ball ball;
-    private final List<DrawableObject> gameObjects;
+    private List<DrawableObject> gameObjects;
     private KeyStroke lastInput;
 
     private final PongClient client;
@@ -42,22 +41,14 @@ public class GameManager implements KeyListener {
         this.displayManager = new DisplayManager(SCREEN_WIDTH, SCREEN_HEIGHT);
         client = new PongClient(host, port, this);
 
-        this.playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
-        this.playerTwoPaddle = new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3);
-        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
 
-        playerOneScore = new Score(SCREEN_WIDTH / 2 - 5, 1);
-        playerTwoScore = new Score(SCREEN_WIDTH / 2 + 5, 1);
+        player = new Player(new Score(SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, SCREEN_HEIGHT / 2, 3));
+        opponent = new Player(new Score(SCREEN_WIDTH / 2 + 5, 1), new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3));
+        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
-        gameObjects = new ArrayList<>();
-        gameObjects.add(playerOneScore);
-        gameObjects.add(playerTwoScore);
-        gameObjects.add(playerOnePaddle);
-        gameObjects.add(playerTwoPaddle);
-        gameObjects.add(ball);
+        initGameObjects();
     }
 
     public void run() {
@@ -68,9 +59,6 @@ public class GameManager implements KeyListener {
                         manageInitializingState();
                         if (lastInput != null && lastInput.getKeyType() == KeyType.Enter)
                             gameState = GameState.PLAYING;
-                        break;
-                    case LOBBY:
-                        manageLobbyState();
                         break;
                     case PLAYING:
                         displayManager.drawObjects(gameObjects);
@@ -87,10 +75,6 @@ public class GameManager implements KeyListener {
         }
     }
 
-    private void manageLobbyState() throws IOException {
-        displayManager.drawLobby();
-    }
-
     private void manageInitializingState() throws IOException {
         displayManager.drawTitle();
     }
@@ -99,35 +83,42 @@ public class GameManager implements KeyListener {
     public void onKeyPressed(KeyStroke keyStroke) {
         lastInput = keyStroke;
         if (keyStroke.getKeyType() == KeyType.ArrowUp) {
-            if (playerOnePaddle.getY() > 0)
-                playerOnePaddle.moveUp();
+            player.moveUp();
         } else if (keyStroke.getKeyType() == KeyType.ArrowDown) {
-            if (playerOnePaddle.getY() + playerOnePaddle.getHeight() < SCREEN_HEIGHT - 1)
-                playerOnePaddle.moveDown();
+            player.moveDown();
         }
 
         client.updatePosition();
     }
 
+    public int getPlayerPosition() {
+        return player.getPaddle().getY();
+    }
+
+    public void setOpponentPosition(int y) {
+        opponent.getPaddle().setY(y);
+    }
+
+    public void updateBallPosition(int xBall, int yBall) {
+        ball.setX(xBall);
+        ball.setY(yBall);
+    }
+
+    public void updateScore(int scorePlayer, int ScoreOpponent) {
+        player.getScore().update(scorePlayer);
+        opponent.getScore().update(ScoreOpponent);
+    }
+
+    private void initGameObjects() {
+        gameObjects = new ArrayList<>();
+        gameObjects.add(player.getScore());
+        gameObjects.add(opponent.getScore());
+        gameObjects.add(player.getPaddle());
+        gameObjects.add(opponent.getPaddle());
+        gameObjects.add(ball);
+    }
+
     private boolean continueGameConditions() {
         return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
-    }
-
-    public int getPlayerOnePaddleY() {
-        return playerOnePaddle.getY();
-    }
-
-    public void setPlayerTwoPaddleY(int y) {
-        playerTwoPaddle.setY(y);
-    }
-
-    public void updateBallPosition(int xBalle, int yBalle) {
-        ball.setX(xBalle);
-        ball.setY(yBalle);
-    }
-
-    public void updateScore(int scorePlayer1, int scorePlayer2) {
-        playerOneScore.update(scorePlayer1);
-        playerTwoScore.update(scorePlayer2);
     }
 }
