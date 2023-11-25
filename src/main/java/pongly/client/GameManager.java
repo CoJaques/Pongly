@@ -4,18 +4,21 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import pongly.client.InputManager.InputHandler;
 import pongly.client.InputManager.KeyListener;
-import pongly.client.game.Ball;
-import pongly.client.game.DrawableObject;
-import pongly.client.game.Paddle;
+import pongly.common.Ball;
+import pongly.common.DrawableObject;
+import pongly.common.Paddle;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pongly.common.Utils.SCREEN_HEIGHT;
+import static pongly.common.Utils.SCREEN_WIDTH;
+
 /**
  * This class is responsible for handling the game logic
  */
-public class CliController implements KeyListener {
+public class GameManager implements KeyListener {
 
     private final static int REFRESH_FREQUENCY = 100;
     private GameState gameState = GameState.INITIALIZING;
@@ -27,17 +30,19 @@ public class CliController implements KeyListener {
     private final List<DrawableObject> gameObjects;
     private KeyStroke lastInput;
 
+    private final PongClient client;
+
     /**
-     * @param displayManager  DisplayManager instance
-     * @param playerOnePaddle Paddle instance
-     * @param playerTwoPaddle Paddle instance
-     * @param ball            Ball instance
+     * @throws IOException if an I/O error occurs
      */
-    public CliController(DisplayManager displayManager, Paddle playerOnePaddle, Paddle playerTwoPaddle, Ball ball) {
-        this.playerOnePaddle = playerOnePaddle;
-        this.playerTwoPaddle = playerTwoPaddle;
-        this.ball = ball;
-        this.displayManager = displayManager;
+    public GameManager(String host, int port) throws IOException {
+
+        this.displayManager = new DisplayManager(SCREEN_WIDTH, SCREEN_HEIGHT);
+        client = new PongClient(host, port, this);
+
+        this.playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
+        this.playerTwoPaddle = new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3);
+        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
 
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
@@ -61,11 +66,13 @@ public class CliController implements KeyListener {
                         manageLobbyState();
                         break;
                     case PLAYING:
-                        managePlayingState();
+                        displayManager.drawObjects(gameObjects);
                         break;
                 }
                 Thread.sleep(REFRESH_FREQUENCY);
             }
+            displayManager.close();
+
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         } finally {
@@ -81,15 +88,6 @@ public class CliController implements KeyListener {
         displayManager.drawTitle();
     }
 
-    /**
-     * Run the game
-     */
-    public void managePlayingState() throws IOException {
-        updateGameObjects();
-        checkCollisions();
-        renderGame();
-    }
-
     @Override
     public void onKeyPressed(KeyStroke keyStroke) {
         lastInput = keyStroke;
@@ -97,54 +95,27 @@ public class CliController implements KeyListener {
             if (playerOnePaddle.getY() > 0)
                 playerOnePaddle.moveUp();
         } else if (keyStroke.getKeyType() == KeyType.ArrowDown) {
-            if (playerOnePaddle.getY() + playerOnePaddle.getHeight() < displayManager.getScreenHeight() - 1)
+            if (playerOnePaddle.getY() + playerOnePaddle.getHeight() < SCREEN_HEIGHT - 1)
                 playerOnePaddle.moveDown();
         }
+
+        client.updatePosition();
     }
 
     private boolean continueGameConditions() {
         return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
     }
 
-    private void renderGame() throws IOException {
-        displayManager.drawObjects(gameObjects);
+    public int getPlayerOnePaddleY() {
+        return playerOnePaddle.getY();
     }
 
-    private void updateGameObjects() {
-        ball.update();
+    public void setPlayerTwoPaddleY(int y) {
+        playerTwoPaddle.setY(y);
     }
 
-    private void checkCollisions() {
-        if (ball.getY() <= 0 || ball.getY() >= displayManager.getScreenHeight() - 1) {
-            ball.reverseYDirection();
-        }
-
-        if (ball.getX() == displayManager.getScreenWidth() || ball.getX() == 0) {
-            ball.reverseXDirection();
-        }
-
-        manageBallCollisionWithPaddle(playerOnePaddle);
-        manageBallCollisionWithPaddle(playerTwoPaddle);
-    }
-
-    private void manageBallCollisionWithPaddle(Paddle paddle) {
-        if (ball.getX() == paddle.getX() && ball.getY() >= paddle.getY() &&
-                ball.getY() <= paddle.getY() + paddle.getHeight()) {
-            ball.reverseXDirection();
-
-            int delta = ball.getY() - (paddle.getY() + paddle.getHeight() / 2);
-
-            if (delta == 0) {
-                ball.goStraight();
-            } else if (ball.getYVelocity() == 0) {
-                if (delta > 0) {
-                    ball.goDiagonalDown();
-                } else {
-                    ball.goDiagonalUp();
-                }
-            } else {
-                ball.reverseYDirection();
-            }
-        }
+    public void updateBallPosition(int xBalle, int yBalle) {
+        ball.setX(xBalle);
+        ball.setY(yBalle);
     }
 }

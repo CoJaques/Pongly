@@ -1,4 +1,4 @@
-package pongly.client.game;
+package pongly.common;
 
 /**
  * A class that represents  a paddle in the game
@@ -28,5 +28,9 @@ public class Paddle extends DrawableObject {
      */
     public void moveDown() {
         y++;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }
