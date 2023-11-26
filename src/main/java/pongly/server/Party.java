@@ -13,13 +13,12 @@ import static pongly.common.Utils.SCREEN_WIDTH;
 public class Party implements Runnable {
 
     public static int PARTY_ID = 0;
-
-    private int id = PARTY_ID++;
-
+    private final int id = PARTY_ID++;
     private final List<ClientHandler> players = new ArrayList<>();
     private final Ball ball;
     Paddle playerOnePaddle;
     Paddle playerTwoPaddle;
+    private boolean isFinished = false;
 
     public Party() {
         ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
@@ -32,7 +31,7 @@ public class Party implements Runnable {
     public void addPlayer(ClientHandler player) {
         // TODO throw exception if full
         players.add(player);
-        System.out.println("Player added to party " + id);
+        System.out.println("Player : " + player.getId() + " added to party " + id);
     }
 
     public boolean isFull() {
@@ -44,23 +43,29 @@ public class Party implements Runnable {
 
         System.out.println("Starting game for party " + id);
 
-        while (true) {
+        while (playersConnected()) {
             updateGameObjects();
+            checkCollisions();
+            sendPositions();
 
             try {
-                checkCollisions();
-                sendPositions();
                 Thread.sleep(100);
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+
+        System.out.println("Party " + id + " finished");
+
+        players.forEach(ClientHandler::endCommunication);
+        isFinished = true;
     }
 
-    private void sendPositions() throws IOException {
+    private boolean playersConnected() {
+        return players.stream().allMatch(ClientHandler::isConnected);
+    }
+
+    private void sendPositions() {
         players.get(0).updatePosition(playerTwoPaddle.getY(), ball.getX(), ball.getY());
         players.get(1).updatePosition(playerOnePaddle.getY(), SCREEN_WIDTH - ball.getX(), ball.getY());
     }
@@ -71,7 +76,7 @@ public class Party implements Runnable {
         ball.update();
     }
 
-    private void checkCollisions() throws IOException {
+    private void checkCollisions() {
 
         managePoint();
 
@@ -83,7 +88,7 @@ public class Party implements Runnable {
         manageBallCollisionWithPaddle(playerTwoPaddle);
     }
 
-    private void managePoint() throws IOException {
+    private void managePoint() {
         if (ball.getX() == SCREEN_WIDTH || ball.getX() == 0) {
             if (ball.getX() == 0)
                 players.get(0).score++;
@@ -94,8 +99,6 @@ public class Party implements Runnable {
 
             players.get(0).sendScore(players.get(1).score);
             players.get(1).sendScore(players.get(0).score);
-
-            System.out.println("Score: " + players.get(0).score + " - " + players.get(1).score);
         }
     }
 
@@ -118,5 +121,17 @@ public class Party implements Runnable {
                 ball.reverseYDirection();
             }
         }
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public List<ClientHandler> getPlayers() {
+        return players;
+    }
+
+    public int getId() {
+        return id;
     }
 }

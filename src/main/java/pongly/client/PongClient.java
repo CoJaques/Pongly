@@ -8,11 +8,16 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class PongClient {
+
+    private static final String SERVER_DISCONNECTED_ERROR = "Server disconnected ";
+
     private final GameManager gameManager;
     private final Socket socket;
     private final BufferedReader in;
     private final BufferedWriter out;
     private final Thread receiverThread = new Thread(this::receive);
+
+    private final int lastSentPosition = 0;
 
     public PongClient(String ip, int port, GameManager gameManager) throws IOException {
         this.gameManager = gameManager;
@@ -25,30 +30,68 @@ public class PongClient {
     }
 
     public void updatePosition() {
+        if(gameManager.getPlayerPosition() == lastSentPosition)
+            return;
+
+        String message = Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar;
+        send(message);
+    }
+
+    public void quitGame() {
+        if (!socket.isClosed() && socket.isConnected())
+            send(Message.QUIT.name() + Utils.EndLineChar);
+
+        closeConnection();
+    }
+
+    private void closeConnection() {
         try {
-            out.write(Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar);
+            if (out != null) {
+                out.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+
+            receiverThread.join();
+        } catch (IOException e) {
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void send(String message) {
+        try {
+            out.write(message);
             out.flush();
-        } catch (Exception e) {
-            System.out.println("Exception: " + e);
-            closeConnection();
+        } catch (IOException e) {
+            System.out.println(SERVER_DISCONNECTED_ERROR + e);
+            gameManager.quitGame();
         }
     }
 
     private void receive() {
-
         System.out.println("Waiting messages from server...");
         try {
             while (true) {
-               String line = in.readLine();
-               processMessage(line);
+                String line = in.readLine();
+                processMessage(line);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println(SERVER_DISCONNECTED_ERROR + e);
+        } finally {
             closeConnection();
         }
     }
 
     private void processMessage(String message) {
+        if (message == null)
+            throw new IllegalArgumentException("Message cannot be null");
+
         String[] parts = message.split(";");
 
         Message msg;
@@ -65,8 +108,9 @@ public class PongClient {
                 break;
             case UPDATE_SCORE:
                 gameManager.updateScore(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                break;
             case QUIT:
-                // TODO
+                gameManager.quitGame();
                 break;
             default:
                 // TODO
@@ -81,25 +125,5 @@ public class PongClient {
 
         gameManager.setOpponentPosition(yPaddlePlayerTwo);
         gameManager.updateBallPosition(xBall, yBall);
-    }
-
-    public void closeConnection() {
-        try {
-            if (out != null) {
-                out.close();
-            }
-            if (in != null) {
-                in.close();
-            }
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-
-            receiverThread.join();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

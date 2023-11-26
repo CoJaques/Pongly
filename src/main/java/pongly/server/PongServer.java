@@ -1,7 +1,8 @@
 package pongly.server;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +21,6 @@ public class PongServer {
         ExecutorService clientExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         ExecutorService gameExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS / 2);
 
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Pong Server is running...");
 
@@ -28,6 +28,7 @@ public class PongServer {
                 Socket clientSocket = serverSocket.accept();
                 Party party = findAvailableParty();
                 ClientHandler handler = new ClientHandler(clientSocket);
+                checkPartiesStatus();
                 clientExecutor.execute(handler);
 
                 party.addPlayer(handler);
@@ -41,6 +42,15 @@ public class PongServer {
         } finally {
             gameExecutor.shutdown();
             clientExecutor.shutdown();
+        }
+    }
+
+    private void checkPartiesStatus() {
+        for (Party party : parties) {
+            if (party.isFinished()) {
+                parties.remove(party);
+                System.out.println("Destroying party " + party.getId());
+            }
         }
     }
 
