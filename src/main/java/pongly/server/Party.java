@@ -45,14 +45,11 @@ public class Party implements Runnable {
 
         while (playersConnected()) {
             updateGameObjects();
+            checkCollisions();
+            sendPositions();
 
             try {
-                checkCollisions();
-                sendPositions();
                 Thread.sleep(100);
-
-            } catch (IOException e) {
-                System.out.println("Error while sending positions: " + e);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -65,10 +62,10 @@ public class Party implements Runnable {
     }
 
     private boolean playersConnected() {
-        return players.stream().allMatch(p -> p.isConnected);
+        return players.stream().allMatch(ClientHandler::isConnected);
     }
 
-    private void sendPositions() throws IOException {
+    private void sendPositions() {
         players.get(0).updatePosition(playerTwoPaddle.getY(), ball.getX(), ball.getY());
         players.get(1).updatePosition(playerOnePaddle.getY(), SCREEN_WIDTH - ball.getX(), ball.getY());
     }
@@ -79,7 +76,7 @@ public class Party implements Runnable {
         ball.update();
     }
 
-    private void checkCollisions() throws IOException {
+    private void checkCollisions() {
 
         managePoint();
 
@@ -91,7 +88,7 @@ public class Party implements Runnable {
         manageBallCollisionWithPaddle(playerTwoPaddle);
     }
 
-    private void managePoint() throws IOException {
+    private void managePoint() {
         if (ball.getX() == SCREEN_WIDTH || ball.getX() == 0) {
             if (ball.getX() == 0)
                 players.get(0).score++;

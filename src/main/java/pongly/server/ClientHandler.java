@@ -19,8 +19,6 @@ public class ClientHandler implements Runnable {
     private boolean running = true;
     private int clientLastPosition = 0;
 
-    public boolean isConnected = true;
-
     public ClientHandler(Socket socket) {
         this.socket = socket;
         try {
@@ -36,26 +34,26 @@ public class ClientHandler implements Runnable {
         try {
             while (running) {
                 String message = in.readLine();
-
-                if (message != null) {
-                    processMessage(message);
-                }
+                processMessage(message);
             }
-        } catch (IOException e) {
-            System.out.println("ClientHandler exception: " + e);
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("Client disconnected: " + e);
         } finally {
             closeResources();
         }
     }
 
     private void processMessage(String message) {
+        if (message == null)
+            throw new IllegalArgumentException("Message cannot be null");
+
         String[] parts = message.split(";");
 
         Message msg;
         try {
             msg = Message.valueOf(parts[0]);
         } catch (IllegalArgumentException e) {
-            System.out.println("Unvalid message " + parts[0]);
+            System.out.println("Invalid message " + parts[0]);
             return;
         }
 
@@ -66,7 +64,6 @@ public class ClientHandler implements Runnable {
             case QUIT:
                 running = false;
                 closeResources();
-                isConnected = false;
                 break;
             default:
                 // TODO
@@ -74,17 +71,23 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void updatePosition(int advPosition, int ballX, int ballY) throws IOException {
+    public void updatePosition(int advPosition, int ballX, int ballY) {
         sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + advPosition + Utils.SEPARATOR + ballX + Utils.SEPARATOR + ballY + Utils.EndLineChar);
     }
 
-    public void sendScore(int advScore) throws IOException {
+    public void sendScore(int advScore) {
         sendMessage(Message.UPDATE_SCORE.name() + Utils.SEPARATOR + advScore + Utils.SEPARATOR + score + Utils.EndLineChar);
     }
 
-    private void sendMessage(String message) throws IOException {
-        out.write(message);
-        out.flush();
+    private void sendMessage(String message) {
+        try {
+            out.write(message);
+            out.flush();
+        } catch (IOException e) {
+            System.out.println("Error while sending message: " + e);
+            running = false;
+            closeResources();
+        }
     }
 
     private void closeResources() {
@@ -108,19 +111,16 @@ public class ClientHandler implements Runnable {
     }
 
     public void endCommunication() {
-        if (isConnected) {
-            System.out.println("Ending communication with player " + id);
-
-            try {
-                sendMessage(Message.QUIT.name() + Utils.EndLineChar);
-            } catch (IOException e) {
-                System.out.println("Error while sending QUIT message: from player : " + id + e);
-            }
-            closeResources();
-        }
+        System.out.println("Ending communication with player " + id);
+        sendMessage(Message.QUIT.name() + Utils.EndLineChar);
+        closeResources();
     }
 
     public int getId() {
         return id;
+    }
+
+    public boolean isConnected() {
+        return socket.isConnected() && !socket.isClosed();
     }
 }

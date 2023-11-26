@@ -8,11 +8,16 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class PongClient {
+
+    private static final String SERVER_DISCONNECTED_ERROR = "Server disconnected ";
+
     private final GameManager gameManager;
     private final Socket socket;
     private final BufferedReader in;
     private final BufferedWriter out;
     private final Thread receiverThread = new Thread(this::receive);
+
+    private final int lastSentPosition = 0;
 
     public PongClient(String ip, int port, GameManager gameManager) throws IOException {
         this.gameManager = gameManager;
@@ -25,12 +30,15 @@ public class PongClient {
     }
 
     public void updatePosition() {
+        if(gameManager.getPlayerPosition() == lastSentPosition)
+            return;
+
         String message = Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar;
         send(message);
     }
 
     public void quitGame() {
-        if(socket.isConnected())
+        if (!socket.isClosed() && socket.isConnected())
             send(Message.QUIT.name() + Utils.EndLineChar);
 
         closeConnection();
@@ -60,34 +68,30 @@ public class PongClient {
         try {
             out.write(message);
             out.flush();
-        } catch (Exception e) {
-            System.out.println("Exception: " + e);
-            closeConnection();
+        } catch (IOException e) {
+            System.out.println(SERVER_DISCONNECTED_ERROR + e);
+            gameManager.quitGame();
         }
     }
 
     private void receive() {
-
         System.out.println("Waiting messages from server...");
         try {
             while (true) {
                 String line = in.readLine();
-
-                if (line == null) {
-                    System.out.println("Server disconnected");
-                    closeConnection();
-                    return;
-                }
-
                 processMessage(line);
             }
-        } catch (IOException e) {
-            System.out.println("Server disconnected " + e);
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println(SERVER_DISCONNECTED_ERROR + e);
+        } finally {
             closeConnection();
         }
     }
 
     private void processMessage(String message) {
+        if (message == null)
+            throw new IllegalArgumentException("Message cannot be null");
+
         String[] parts = message.split(";");
 
         Message msg;

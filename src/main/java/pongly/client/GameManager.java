@@ -52,6 +52,7 @@ public class GameManager implements KeyListener {
     }
 
     public void run() {
+
         try {
             while (true) {
                 switch (gameState) {
@@ -63,6 +64,8 @@ public class GameManager implements KeyListener {
 
                     case PLAYING:
                         displayManager.drawObjects(gameObjects);
+                        client.updatePosition();
+
                         if (lastInput != null && lastInput.getKeyType() == KeyType.Escape)
                             gameState = GameState.Exiting;
                         break;
@@ -70,6 +73,10 @@ public class GameManager implements KeyListener {
                     case Exiting:
                         printScore();
                         client.quitGame();
+                        gameState = GameState.End;
+                        break;
+
+                    case End:
                         if (lastInput != null && lastInput.getKeyType() == KeyType.Character && lastInput.getCharacter() == 'q') {
                             displayManager.close();
                             inputHandler.triggerExit();
@@ -86,8 +93,13 @@ public class GameManager implements KeyListener {
         }
     }
 
-    private void printScore() throws IOException {
-        displayManager.drawScore(player.getScore(), opponent.getScore());
+    private void printScore() {
+        try {
+            displayManager.drawScore(player.getScore(), opponent.getScore());
+        } catch (IOException e) {
+            System.out.println("Error while drawing score: " + e);
+            quitGame();
+        }
     }
 
     private void manageInitializingState() throws IOException {
@@ -102,8 +114,6 @@ public class GameManager implements KeyListener {
         } else if (keyStroke.getKeyType() == KeyType.ArrowDown) {
             player.moveDown();
         }
-
-        client.updatePosition();
     }
 
     public int getPlayerPosition() {
