@@ -30,6 +30,11 @@ public class Paddle extends DrawableObject {
         y++;
     }
 
+    /**
+     * sets the y coordinate of the paddle
+     *
+     * @param y The new y coordinate
+     */
     public void setY(int y) {
         this.y = y;
     }

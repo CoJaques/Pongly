@@ -13,7 +13,6 @@ import java.util.List;
 public class InputHandler {
     private final DisplayManager display;
     private final List<KeyListener> listeners = new ArrayList<>();
-    private boolean IsStopRequested = false;
     private final Thread inputThread = new Thread(() -> {
         try {
             this.processInput();
@@ -21,6 +20,7 @@ public class InputHandler {
             throw new RuntimeException(e);
         }
     });
+    private boolean IsStopRequested = false;
 
     /**
      * @param display DisplayManager instance
@@ -52,15 +52,9 @@ public class InputHandler {
         }
     }
 
-    /**
-     * Process the input from the user
-     * Notify each listener when an input is pressed
-     *
-     * @throws IOException if an I/O error occurs
-     */
     private void processInput() throws IOException {
         while (!IsStopRequested) {
-            KeyStroke keyStroke = display.getScreen().readInput();
+            KeyStroke keyStroke = display.readInput();
             notifyListeners(keyStroke);
         }
     }

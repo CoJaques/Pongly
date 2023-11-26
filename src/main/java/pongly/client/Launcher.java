@@ -3,7 +3,6 @@ package pongly.client;
 import java.io.IOException;
 
 public class Launcher {
-
     public final static String HOSTNAME = "localhost";
     public final static int PORT = 1313;
 
@@ -13,7 +12,7 @@ public class Launcher {
             GameManager gameManager = new GameManager(HOSTNAME, PORT);
             gameManager.run();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }

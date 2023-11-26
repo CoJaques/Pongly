@@ -3,6 +3,7 @@ package pongly.client;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
@@ -47,35 +48,14 @@ public class DisplayManager {
         textGraphics.setForegroundColor(TextColor.ANSI.DEFAULT);
         textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
 
-        for (var object : objects) {
-            drawObject(object, textGraphics);
-        }
+        objects.forEach(object -> drawObject(object, textGraphics));
 
         screen.refresh();
     }
 
     /**
-     * Close the screen
-     *
      * @throws IOException if an I/O error occurs
      */
-    public void close() throws IOException {
-        screen.close();
-    }
-
-    /**
-     * @return the screen
-     */
-    public Screen getScreen() {
-        return screen;
-    }
-
-    private void drawObject(DrawableObject object, TextGraphics textGraphics) {
-        for (int i = 0; i < object.getWidth(); i++)
-            for (int j = 0; j < object.getHeight(); j++)
-                textGraphics.putString(object.getX() + i, object.getY() + j, object.getDisplayString());
-    }
-
     public void drawTitle() throws IOException {
         screen.clear();
 
@@ -85,6 +65,11 @@ public class DisplayManager {
         screen.refresh();
     }
 
+    /**
+     * @param score  The score of the player
+     * @param score1 The score of the opponent
+     * @throws IOException if an I/O error occurs
+     */
     public void drawScore(int score, int score1) throws IOException {
         screen.clear();
 
@@ -111,5 +96,33 @@ public class DisplayManager {
         textGraphics.putString(centerX - result.length() / 2, centerY + 1, result);
 
         screen.refresh();
+    }
+
+    /**
+     * Close the screen
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void close() {
+        try {
+            screen.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to close the screen" + e);
+        }
+    }
+
+    /**
+     * wait for the user to press a key and return the key pressed
+     *
+     * @return the input read from the screen
+     */
+    public KeyStroke readInput() throws IOException {
+        return screen.readInput();
+    }
+
+    private void drawObject(DrawableObject object, TextGraphics textGraphics) {
+        for (int i = 0; i < object.getWidth(); i++)
+            for (int j = 0; j < object.getHeight(); j++)
+                textGraphics.putString(object.getX() + i, object.getY() + j, object.getDisplayString());
     }
 }

@@ -2,8 +2,10 @@ package pongly.client;
 
 import pongly.common.DrawableObject;
 
+/**
+ * This class is used to represent the score of a player
+ */
 public class Score extends DrawableObject {
-
     private int score = 0;
 
     /**
