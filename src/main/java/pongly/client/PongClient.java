@@ -30,7 +30,7 @@ public class PongClient {
     }
 
     public void updatePosition() {
-        if(gameManager.getPlayerPosition() == lastSentPosition)
+        if (gameManager.getPlayerPosition() == lastSentPosition)
             return;
 
         String message = Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar;
@@ -125,5 +125,9 @@ public class PongClient {
 
         gameManager.setOpponentPosition(yPaddlePlayerTwo);
         gameManager.updateBallPosition(xBall, yBall);
+    }
+
+    public void sendReady() {
+        send(Message.READY.name() + Utils.EndLineChar);
     }
 }

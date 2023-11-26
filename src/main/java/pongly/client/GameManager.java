@@ -58,8 +58,10 @@ public class GameManager implements KeyListener {
                 switch (gameState) {
                     case INITIALIZING:
                         manageInitializingState();
-                        if (lastInput != null && lastInput.getKeyType() == KeyType.Enter)
+                        if (lastInput != null && lastInput.getKeyType() == KeyType.Enter) {
+                            client.sendReady();
                             gameState = GameState.PLAYING;
+                        }
                         break;
 
                     case PLAYING:
