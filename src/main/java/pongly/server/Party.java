@@ -3,7 +3,6 @@ package pongly.server;
 import pongly.common.Ball;
 import pongly.common.Paddle;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,10 +43,11 @@ public class Party implements Runnable {
         System.out.println("Starting game for party " + id);
 
         while (playersConnected()) {
-            updateGameObjects();
-            checkCollisions();
-            sendPositions();
-
+            if (players.stream().allMatch(ClientHandler::isReady)) {
+                updateGameObjects();
+                checkCollisions();
+                sendPositions();
+            }
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

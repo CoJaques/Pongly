@@ -18,6 +18,7 @@ public class ClientHandler implements Runnable {
     private BufferedWriter out;
     private boolean running = true;
     private int clientLastPosition = 0;
+    private boolean ready = false;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -58,6 +59,10 @@ public class ClientHandler implements Runnable {
         }
 
         switch (msg) {
+            case READY:
+                System.out.println("Player " + id + " is ready");
+                ready = true;
+                break;
             case UPDATE_PLAYER:
                 clientLastPosition = Integer.parseInt(parts[1]);
                 break;
@@ -122,5 +127,9 @@ public class ClientHandler implements Runnable {
 
     public boolean isConnected() {
         return socket.isConnected() && !socket.isClosed();
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 }
