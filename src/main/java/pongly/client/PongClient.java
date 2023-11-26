@@ -7,18 +7,24 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This class is used to represent a pong player client
+ */
 public class PongClient {
-
     private static final String SERVER_DISCONNECTED_ERROR = "Server disconnected ";
-
     private final GameManager gameManager;
     private final Socket socket;
     private final BufferedReader in;
     private final BufferedWriter out;
     private final Thread receiverThread = new Thread(this::receive);
-
     private final int lastSentPosition = 0;
 
+    /**
+     * @param ip          The ip of the server
+     * @param port        The port of the server
+     * @param gameManager The game manager
+     * @throws IOException if an I/O error occurs
+     */
     public PongClient(String ip, int port, GameManager gameManager) throws IOException {
         this.gameManager = gameManager;
 
@@ -29,6 +35,9 @@ public class PongClient {
         receiverThread.start();
     }
 
+    /**
+     * Send the actual position of the player to the server
+     */
     public void updatePosition() {
         if (gameManager.getPlayerPosition() == lastSentPosition)
             return;
@@ -37,11 +46,21 @@ public class PongClient {
         send(message);
     }
 
+    /**
+     * Send a message to the server to quit the game
+     */
     public void quitGame() {
         if (!socket.isClosed() && socket.isConnected())
             send(Message.QUIT.name() + Utils.EndLineChar);
 
         closeConnection();
+    }
+
+    /**
+     * Send a message to the server to start the game
+     */
+    public void sendReady() {
+        send(Message.READY.name() + Utils.EndLineChar);
     }
 
     private void closeConnection() {
@@ -58,7 +77,7 @@ public class PongClient {
 
             receiverThread.join();
         } catch (IOException e) {
-
+            System.out.println("Error while closing connection: " + e.getMessage());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -98,10 +117,14 @@ public class PongClient {
         try {
             msg = Message.valueOf(parts[0]);
         } catch (IllegalArgumentException e) {
-            System.out.println("Unvalid message: " + parts[0]);
+            System.out.println("Invalid message: " + parts[0]);
             return;
         }
 
+        manageReceivedCommand(msg, parts);
+    }
+
+    private void manageReceivedCommand(Message msg, String[] parts) {
         switch (msg) {
             case UPDATE_SERVER:
                 updateGameObjects(parts);
@@ -113,7 +136,7 @@ public class PongClient {
                 gameManager.quitGame();
                 break;
             default:
-                // TODO
+                System.out.println("Invalid message: " + msg);
                 break;
         }
     }
@@ -125,9 +148,5 @@ public class PongClient {
 
         gameManager.setOpponentPosition(yPaddlePlayerTwo);
         gameManager.updateBallPosition(xBall, yBall);
-    }
-
-    public void sendReady() {
-        send(Message.READY.name() + Utils.EndLineChar);
     }
 }
