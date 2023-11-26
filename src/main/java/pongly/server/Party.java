@@ -9,16 +9,21 @@ import java.util.List;
 import static pongly.common.Utils.SCREEN_HEIGHT;
 import static pongly.common.Utils.SCREEN_WIDTH;
 
+/**
+ * This class is used to represent a party, composed by two players
+ */
 public class Party implements Runnable {
-
     public static int PARTY_ID = 0;
     private final int id = PARTY_ID++;
     private final List<ClientHandler> players = new ArrayList<>();
+    private final Paddle playerOnePaddle;
+    private final Paddle playerTwoPaddle;
     private final Ball ball;
-    Paddle playerOnePaddle;
-    Paddle playerTwoPaddle;
     private boolean isFinished = false;
 
+    /**
+     * Create a new party
+     */
     public Party() {
         ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
         playerOnePaddle = new Paddle(5, SCREEN_HEIGHT / 2, 3);
@@ -27,38 +32,57 @@ public class Party implements Runnable {
         System.out.println("New party created with id " + id);
     }
 
+    /**
+     * Add a player to the party
+     *
+     * @param player The player to add
+     */
     public void addPlayer(ClientHandler player) {
-        // TODO throw exception if full
+        if (players.size() == 2) {
+            throw new IllegalStateException("Party is full");
+        }
+
         players.add(player);
         System.out.println("Player : " + player.getId() + " added to party " + id);
     }
 
+    /**
+     * @return true if the party is full
+     */
     public boolean isFull() {
         return players.size() == 2;
     }
 
     @Override
     public void run() {
-
         System.out.println("Starting game for party " + id);
 
         while (playersConnected()) {
-            if (players.stream().allMatch(ClientHandler::isReady)) {
-                updateGameObjects();
-                checkCollisions();
-                sendPositions();
-            }
+
+            if (players.stream().allMatch(ClientHandler::isReady))
+                executeRunningParty();
+
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+        endParty();
+    }
 
-        System.out.println("Party " + id + " finished");
+    /**
+     * @return true if the party is finished
+     */
+    public boolean isFinished() {
+        return isFinished;
+    }
 
-        players.forEach(ClientHandler::endCommunication);
-        isFinished = true;
+    /**
+     * @return the id of the party
+     */
+    public int getId() {
+        return id;
     }
 
     private boolean playersConnected() {
@@ -77,7 +101,6 @@ public class Party implements Runnable {
     }
 
     private void checkCollisions() {
-
         managePoint();
 
         if (ball.getY() <= 0 || ball.getY() >= SCREEN_HEIGHT - 1) {
@@ -123,15 +146,16 @@ public class Party implements Runnable {
         }
     }
 
-    public boolean isFinished() {
-        return isFinished;
+    private void executeRunningParty() {
+        updateGameObjects();
+        checkCollisions();
+        sendPositions();
     }
 
-    public List<ClientHandler> getPlayers() {
-        return players;
-    }
+    private void endParty() {
+        System.out.println("Party " + id + " finished");
 
-    public int getId() {
-        return id;
+        players.forEach(ClientHandler::endCommunication);
+        isFinished = true;
     }
 }

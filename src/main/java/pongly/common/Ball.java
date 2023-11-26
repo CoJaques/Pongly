@@ -4,12 +4,10 @@ package pongly.common;
  * A class that represents the ball in the game
  */
 public class Ball extends DrawableObject {
-
-    private int xVelocity = 1;
-    private int yVelocity = 0;
-
     private final int initialPositionX;
     private final int initialPositionY;
+    private int xVelocity = 1;
+    private int yVelocity = 0;
     private int initialXVelocity = 1;
 
     /**
@@ -74,14 +72,23 @@ public class Ball extends DrawableObject {
         return yVelocity;
     }
 
+    /**
+     * Set the X position of the ball
+     */
     public void setX(int x) {
         this.x = x;
     }
 
+    /**
+     * Set the Y position of the ball
+     */
     public void setY(int y) {
         this.y = y;
     }
 
+    /**
+     * Reset the ball to its initial position
+     */
     public void reset() {
 
         xVelocity = initialXVelocity;

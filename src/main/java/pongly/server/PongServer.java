@@ -27,7 +27,15 @@ public class PongServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 Party party = findAvailableParty();
-                ClientHandler handler = new ClientHandler(clientSocket);
+
+                ClientHandler handler;
+                try {
+                    handler = new ClientHandler(clientSocket);
+                } catch (IOException e) {
+                    System.out.println("Error during handler connection : " + e.getMessage());
+                    continue;
+                }
+
                 checkPartiesStatus();
                 clientExecutor.execute(handler);
 

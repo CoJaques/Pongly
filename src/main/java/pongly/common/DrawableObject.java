@@ -4,7 +4,6 @@ package pongly.common;
  * A class that represents an object that can be drawn on the screen
  */
 public abstract class DrawableObject {
-
     protected String displayString;
     /**
      * The top left corner x coordinate
