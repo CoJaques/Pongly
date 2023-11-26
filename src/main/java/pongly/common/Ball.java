@@ -8,6 +8,10 @@ public class Ball extends DrawableObject {
     private int xVelocity = 1;
     private int yVelocity = 0;
 
+    private final int initialPositionX;
+    private final int initialPositionY;
+    private int initialXVelocity = 1;
+
     /**
      * Creates a new Ball
      *
@@ -16,6 +20,8 @@ public class Ball extends DrawableObject {
      */
     public Ball(int x, int y) {
         super(x, y, "O");
+        initialPositionX = x;
+        initialPositionY = y;
     }
 
     /**
@@ -68,11 +74,21 @@ public class Ball extends DrawableObject {
         return yVelocity;
     }
 
-    public int setX(int x) {
-        return this.x = x;
+    public void setX(int x) {
+        this.x = x;
     }
 
-    public int setY(int y) {
-        return this.y = y;
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void reset() {
+
+        xVelocity = initialXVelocity;
+        initialXVelocity *= -1;
+        yVelocity = 0;
+
+        x = initialPositionX;
+        y = initialPositionY;
     }
 }

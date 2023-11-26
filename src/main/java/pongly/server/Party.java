@@ -1,9 +1,7 @@
 package pongly.server;
 
 import pongly.common.Ball;
-import pongly.common.Message;
 import pongly.common.Paddle;
-import pongly.common.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,11 +46,10 @@ public class Party implements Runnable {
 
         while (true) {
             updateGameObjects();
-            checkCollisions();
-            try {
-                players.get(0).sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + playerTwoPaddle.getY() + Utils.SEPARATOR + ball.getX() + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
-                players.get(1).sendMessage(Message.UPDATE_SERVER.name() + Utils.SEPARATOR + playerOnePaddle.getY() + Utils.SEPARATOR + (Utils.SCREEN_WIDTH - ball.getX()) + Utils.SEPARATOR + ball.getY() + Utils.EndLineChar);
 
+            try {
+                checkCollisions();
+                sendPositions();
                 Thread.sleep(100);
 
             } catch (IOException e) {
@@ -63,23 +60,43 @@ public class Party implements Runnable {
         }
     }
 
+    private void sendPositions() throws IOException {
+        players.get(0).updatePosition(playerTwoPaddle.getY(), ball.getX(), ball.getY());
+        players.get(1).updatePosition(playerOnePaddle.getY(), SCREEN_WIDTH - ball.getX(), ball.getY());
+    }
+
     private void updateGameObjects() {
         playerOnePaddle.setY(players.get(0).getClientLastPosition());
         playerTwoPaddle.setY(players.get(1).getClientLastPosition());
         ball.update();
     }
 
-    private void checkCollisions() {
+    private void checkCollisions() throws IOException {
+
+        managePoint();
+
         if (ball.getY() <= 0 || ball.getY() >= SCREEN_HEIGHT - 1) {
             ball.reverseYDirection();
         }
 
-        if (ball.getX() == SCREEN_WIDTH || ball.getX() == 0) {
-            ball.reverseXDirection();
-        }
-
         manageBallCollisionWithPaddle(playerOnePaddle);
         manageBallCollisionWithPaddle(playerTwoPaddle);
+    }
+
+    private void managePoint() throws IOException {
+        if (ball.getX() == SCREEN_WIDTH || ball.getX() == 0) {
+            if (ball.getX() == 0)
+                players.get(0).score++;
+            else
+                players.get(1).score++;
+
+            ball.reset();
+
+            players.get(0).sendScore(players.get(1).score);
+            players.get(1).sendScore(players.get(0).score);
+
+            System.out.println("Score: " + players.get(0).score + " - " + players.get(1).score);
+        }
     }
 
     private void manageBallCollisionWithPaddle(Paddle paddle) {

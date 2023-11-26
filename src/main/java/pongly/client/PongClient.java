@@ -26,7 +26,7 @@ public class PongClient {
 
     public void updatePosition() {
         try {
-            out.write(Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerOnePaddleY() + Utils.EndLineChar);
+            out.write(Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar);
             out.flush();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -63,6 +63,8 @@ public class PongClient {
             case UPDATE_SERVER:
                 updateGameObjects(parts);
                 break;
+            case UPDATE_SCORE:
+                gameManager.updateScore(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
             case QUIT:
                 // TODO
                 break;
@@ -77,7 +79,7 @@ public class PongClient {
         int xBall = Integer.parseInt(data[2]);
         int yBall = Integer.parseInt(data[3]);
 
-        gameManager.setPlayerTwoPaddleY(yPaddlePlayerTwo);
+        gameManager.setOpponentPosition(yPaddlePlayerTwo);
         gameManager.updateBallPosition(xBall, yBall);
     }
 

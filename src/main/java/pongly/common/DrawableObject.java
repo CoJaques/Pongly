@@ -5,7 +5,7 @@ package pongly.common;
  */
 public abstract class DrawableObject {
 
-    private final String displayString;
+    protected String displayString;
     /**
      * The top left corner x coordinate
      */

@@ -56,16 +56,6 @@ public class DisplayManager {
     }
 
     /**
-     * Clear the screen
-     *
-     * @throws IOException if an I/O error occurs
-     */
-    public void clear() throws IOException {
-        screen.clear();
-        screen.refresh();
-    }
-
-    /**
      * Close the screen
      *
      * @throws IOException if an I/O error occurs
@@ -93,15 +83,6 @@ public class DisplayManager {
         TextGraphics textGraphics = screen.newTextGraphics();
         textGraphics.putString(0, 0, "Pongly");
         textGraphics.putString(0, 1, "Press enter key to start");
-        screen.refresh();
-    }
-
-    public void drawLobby() throws IOException {
-        screen.clear();
-        TextGraphics textGraphics = screen.newTextGraphics();
-        textGraphics.setForegroundColor(TextColor.Factory.fromString("#000000"));
-        textGraphics.setBackgroundColor(TextColor.ANSI.WHITE_BRIGHT);
-        textGraphics.putString(0, 0, "Lobby");
         screen.refresh();
     }
 }
