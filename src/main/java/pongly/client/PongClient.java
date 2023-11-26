@@ -28,9 +28,13 @@ public class PongClient {
     public PongClient(String ip, int port, GameManager gameManager) throws IOException {
         this.gameManager = gameManager;
 
-        this.socket = new Socket(ip, port);
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-        this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+        try {
+            this.socket = new Socket(ip, port);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+            this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new IOException("Error while connecting to server: " + e.getMessage());
+        }
 
         receiverThread.start();
     }

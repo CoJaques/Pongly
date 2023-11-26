@@ -34,7 +34,6 @@ public class GameManager implements KeyListener {
      * @throws IOException if an I/O error occurs
      */
     public GameManager(String host, int port) throws IOException {
-
         player = new Player(new Score(SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, SCREEN_HEIGHT / 2, 3));
         opponent = new Player(new Score(SCREEN_WIDTH / 2 + 5, 1), new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3));
         ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
