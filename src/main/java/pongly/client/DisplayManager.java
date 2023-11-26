@@ -19,7 +19,6 @@ import static pongly.common.Utils.SCREEN_WIDTH;
  * This class is responsible for handling the display
  */
 public class DisplayManager {
-    private final Terminal terminal;
     private final Screen screen;
 
     /**
@@ -30,7 +29,7 @@ public class DisplayManager {
     public DisplayManager(int column, int row) throws IOException {
         TerminalSize defaultTerminalSize = new TerminalSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         DefaultTerminalFactory factory = new DefaultTerminalFactory().setInitialTerminalSize(defaultTerminalSize);
-        terminal = factory.createTerminal();
+        Terminal terminal = factory.createTerminal();
         screen = new TerminalScreen(terminal);
         screen.startScreen();
         screen.setCursorPosition(null); // we don't need a cursor
@@ -83,6 +82,34 @@ public class DisplayManager {
         TextGraphics textGraphics = screen.newTextGraphics();
         textGraphics.putString(0, 0, "Pongly");
         textGraphics.putString(0, 1, "Press enter key to start");
+        screen.refresh();
+    }
+
+    public void drawScore(int score, int score1) throws IOException {
+        screen.clear();
+
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
+        textGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
+
+        int centerX = SCREEN_WIDTH / 2;
+        int centerY = SCREEN_HEIGHT / 2;
+
+        String result;
+        if (score > score1) {
+            result = "YOU WIN";
+            textGraphics.setForegroundColor(TextColor.ANSI.GREEN);
+        } else if (score < score1) {
+            result = "YOU LOOSE";
+            textGraphics.setForegroundColor(TextColor.ANSI.RED);
+        } else {
+            result = "EQUALITY";
+            textGraphics.setForegroundColor(TextColor.ANSI.YELLOW);
+        }
+
+        textGraphics.putString(centerX - 10, centerY, "Score: " + score + " - " + score1);
+        textGraphics.putString(centerX - result.length() / 2, centerY + 1, result);
+
         screen.refresh();
     }
 }

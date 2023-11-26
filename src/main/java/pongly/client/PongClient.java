@@ -25,8 +25,40 @@ public class PongClient {
     }
 
     public void updatePosition() {
+        String message = Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar;
+        send(message);
+    }
+
+    public void quitGame() {
+        if(socket.isConnected())
+            send(Message.QUIT.name() + Utils.EndLineChar);
+
+        closeConnection();
+    }
+
+    private void closeConnection() {
         try {
-            out.write(Message.UPDATE_PLAYER.name() + Utils.SEPARATOR + gameManager.getPlayerPosition() + Utils.EndLineChar);
+            if (out != null) {
+                out.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+
+            receiverThread.join();
+        } catch (IOException e) {
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void send(String message) {
+        try {
+            out.write(message);
             out.flush();
         } catch (Exception e) {
             System.out.println("Exception: " + e);
@@ -39,11 +71,18 @@ public class PongClient {
         System.out.println("Waiting messages from server...");
         try {
             while (true) {
-               String line = in.readLine();
-               processMessage(line);
+                String line = in.readLine();
+
+                if (line == null) {
+                    System.out.println("Server disconnected");
+                    closeConnection();
+                    return;
+                }
+
+                processMessage(line);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Server disconnected " + e);
             closeConnection();
         }
     }
@@ -65,8 +104,9 @@ public class PongClient {
                 break;
             case UPDATE_SCORE:
                 gameManager.updateScore(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+                break;
             case QUIT:
-                // TODO
+                gameManager.quitGame();
                 break;
             default:
                 // TODO
@@ -81,25 +121,5 @@ public class PongClient {
 
         gameManager.setOpponentPosition(yPaddlePlayerTwo);
         gameManager.updateBallPosition(xBall, yBall);
-    }
-
-    public void closeConnection() {
-        try {
-            if (out != null) {
-                out.close();
-            }
-            if (in != null) {
-                in.close();
-            }
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-
-            receiverThread.join();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

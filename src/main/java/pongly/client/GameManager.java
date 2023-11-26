@@ -38,41 +38,56 @@ public class GameManager implements KeyListener {
      */
     public GameManager(String host, int port) throws IOException {
 
+        player = new Player(new Score(SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, SCREEN_HEIGHT / 2, 3));
+        opponent = new Player(new Score(SCREEN_WIDTH / 2 + 5, 1), new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3));
+        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+
         this.displayManager = new DisplayManager(SCREEN_WIDTH, SCREEN_HEIGHT);
         client = new PongClient(host, port, this);
 
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
 
-        player = new Player(new Score(SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, SCREEN_HEIGHT / 2, 3));
-        opponent = new Player(new Score(SCREEN_WIDTH / 2 + 5, 1), new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3));
-        this.ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-
         initGameObjects();
     }
 
     public void run() {
         try {
-            while (continueGameConditions()) {
+            while (true) {
                 switch (gameState) {
                     case INITIALIZING:
                         manageInitializingState();
                         if (lastInput != null && lastInput.getKeyType() == KeyType.Enter)
                             gameState = GameState.PLAYING;
                         break;
+
                     case PLAYING:
                         displayManager.drawObjects(gameObjects);
+                        if (lastInput != null && lastInput.getKeyType() == KeyType.Escape)
+                            gameState = GameState.Exiting;
+                        break;
+
+                    case Exiting:
+                        printScore();
+                        client.quitGame();
+                        if (lastInput != null && lastInput.getKeyType() == KeyType.Character && lastInput.getCharacter() == 'q') {
+                            displayManager.close();
+                            inputHandler.triggerExit();
+                            return;
+                        }
                         break;
                 }
                 Thread.sleep(REFRESH_FREQUENCY);
             }
-            displayManager.close();
-
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         } finally {
             inputHandler.triggerExit();
         }
+    }
+
+    private void printScore() throws IOException {
+        displayManager.drawScore(player.getScore(), opponent.getScore());
     }
 
     private void manageInitializingState() throws IOException {
@@ -105,20 +120,20 @@ public class GameManager implements KeyListener {
     }
 
     public void updateScore(int scorePlayer, int ScoreOpponent) {
-        player.getScore().update(scorePlayer);
-        opponent.getScore().update(ScoreOpponent);
+        player.updateScore(scorePlayer);
+        opponent.updateScore(ScoreOpponent);
     }
 
     private void initGameObjects() {
         gameObjects = new ArrayList<>();
-        gameObjects.add(player.getScore());
-        gameObjects.add(opponent.getScore());
+        gameObjects.add(player.getScoreObject());
+        gameObjects.add(opponent.getScoreObject());
         gameObjects.add(player.getPaddle());
         gameObjects.add(opponent.getPaddle());
         gameObjects.add(ball);
     }
 
-    private boolean continueGameConditions() {
-        return lastInput == null || lastInput.getCharacter() == null || lastInput.getCharacter() != 'q';
+    public void quitGame() {
+        gameState = GameState.Exiting;
     }
 }

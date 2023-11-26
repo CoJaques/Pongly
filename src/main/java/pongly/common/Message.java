@@ -5,5 +5,4 @@ public enum Message {
     UPDATE_SERVER,
     UPDATE_SCORE,
     QUIT,
-    ;
 }

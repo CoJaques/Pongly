@@ -14,8 +14,16 @@ public class Player {
         this.paddle = paddle;
     }
 
-    public Score getScore() {
+    public Score getScoreObject() {
         return score;
+    }
+
+    public int getScore() {
+        return score.getScore();
+    }
+
+    public void updateScore(int newScore) {
+        score.update(newScore);
     }
 
     public Paddle getPaddle() {

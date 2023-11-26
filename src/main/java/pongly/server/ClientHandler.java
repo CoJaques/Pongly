@@ -9,13 +9,17 @@ import java.nio.charset.StandardCharsets;
 
 public class ClientHandler implements Runnable {
 
+    private static int ID = 0;
+    private final int id = ID++;
+
     public int score = 0;
     private final Socket socket;
     private BufferedReader in;
     private BufferedWriter out;
     private boolean running = true;
-
     private int clientLastPosition = 0;
+
+    public boolean isConnected = true;
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -51,8 +55,7 @@ public class ClientHandler implements Runnable {
         try {
             msg = Message.valueOf(parts[0]);
         } catch (IllegalArgumentException e) {
-            // Gérez le cas où la chaîne ne correspond à aucune énumération
-            System.out.println("Message non valide: " + parts[0]);
+            System.out.println("Unvalid message " + parts[0]);
             return;
         }
 
@@ -61,7 +64,9 @@ public class ClientHandler implements Runnable {
                 clientLastPosition = Integer.parseInt(parts[1]);
                 break;
             case QUIT:
-                // TODO
+                running = false;
+                closeResources();
+                isConnected = false;
                 break;
             default:
                 // TODO
@@ -100,5 +105,22 @@ public class ClientHandler implements Runnable {
 
     public int getClientLastPosition() {
         return clientLastPosition;
+    }
+
+    public void endCommunication() {
+        if (isConnected) {
+            System.out.println("Ending communication with player " + id);
+
+            try {
+                sendMessage(Message.QUIT.name() + Utils.EndLineChar);
+            } catch (IOException e) {
+                System.out.println("Error while sending QUIT message: from player : " + id + e);
+            }
+            closeResources();
+        }
+    }
+
+    public int getId() {
+        return id;
     }
 }
