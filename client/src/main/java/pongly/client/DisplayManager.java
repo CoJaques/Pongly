@@ -9,12 +9,10 @@ import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 import pongly.common.DrawableObject;
+import pongly.common.Utils;
 
 import java.io.IOException;
 import java.util.List;
-
-import static pongly.common.Utils.SCREEN_HEIGHT;
-import static pongly.common.Utils.SCREEN_WIDTH;
 
 /**
  * This class is responsible for handling the display
@@ -28,7 +26,7 @@ public class DisplayManager {
      * @throws IOException if an I/O error occurs
      */
     public DisplayManager(int column, int row) throws IOException {
-        TerminalSize defaultTerminalSize = new TerminalSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        TerminalSize defaultTerminalSize = new TerminalSize(Utils.SCREEN_WIDTH, Utils.SCREEN_HEIGHT);
         DefaultTerminalFactory factory = new DefaultTerminalFactory().setInitialTerminalSize(defaultTerminalSize);
         Terminal terminal = factory.createTerminal();
         screen = new TerminalScreen(terminal);
@@ -77,8 +75,8 @@ public class DisplayManager {
         textGraphics.setForegroundColor(TextColor.ANSI.WHITE);
         textGraphics.setBackgroundColor(TextColor.ANSI.BLACK);
 
-        int centerX = SCREEN_WIDTH / 2;
-        int centerY = SCREEN_HEIGHT / 2;
+        int centerX = Utils.SCREEN_WIDTH / 2;
+        int centerY = Utils.SCREEN_HEIGHT / 2;
 
         String result;
         if (score > score1) {
