@@ -27,6 +27,7 @@
 
 Pongly is a project that enables multiplayer Pong game. It includes both client and server components. The server component listens for client connections and assigns them to game parties. Each party consists of two players. The server uses multi-threading to handle multiple clients concurrently. The client component connects to the server and allows players to control their paddles in the game. It handles user input, updates the display, and communicates with the server to send/receive game data. The project provides a complete game solution for multiplayer Pong enthusiasts.
 
+The protocol definition can be found here : https://github.com/CoJaques/Pongly/tree/main/ApplicationProtocolDiagram
 
 ## 🚀 Getting Started
 
