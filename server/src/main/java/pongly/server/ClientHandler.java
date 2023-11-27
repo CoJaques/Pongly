@@ -24,11 +24,13 @@ public class ClientHandler implements Runnable {
     private boolean running = true;
     private int clientLastPosition = 0;
     private boolean ready = false;
+    private final Party party;
 
     /**
      * @param socket The socket of the client
      */
-    public ClientHandler(Socket socket) throws IOException {
+    public ClientHandler(Socket socket, Party party) throws IOException {
+        this.party = party;
         this.socket = socket;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
@@ -45,7 +47,7 @@ public class ClientHandler implements Runnable {
                 processMessage(message);
             }
         } catch (IOException | IllegalArgumentException e) {
-            System.out.println("Client disconnected: " + e);
+            System.out.println("Player " + id + " disconnected");
         } finally {
             closeResources();
         }
@@ -82,7 +84,6 @@ public class ClientHandler implements Runnable {
      * Close the communication and send a message to the client to quit the game
      */
     public void endCommunication() {
-        System.out.println("Ending communication with player " + id);
         sendMessage(Message.QUIT.name() + Utils.EndLineChar);
         closeResources();
     }
@@ -120,6 +121,8 @@ public class ClientHandler implements Runnable {
     }
 
     private void closeResources() {
+        System.out.println("Closing resources for player " + id);
+
         try {
             if (out != null) {
                 out.close();
@@ -162,6 +165,7 @@ public class ClientHandler implements Runnable {
                 clientLastPosition = Integer.parseInt(parts[1]);
                 break;
             case QUIT:
+                party.removePlayer(this);
                 running = false;
                 closeResources();
                 break;
