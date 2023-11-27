@@ -9,19 +9,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PongServer {
-    private static final int PORT = 1313;
-    private static final int NUMBER_OF_THREADS = 10;
+    private int port = 1313;
+    private int numberOfThreads = 10;
     private final List<Party> parties = new ArrayList<>();
 
-    public static void main(String[] args) {
-        new PongServer().startServer();
+    public PongServer(int port, int numberOfThreads) {
+        this.port = port;
+        this.numberOfThreads = numberOfThreads;
     }
 
     public void startServer() {
-        ExecutorService clientExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
-        ExecutorService gameExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS / 2);
+        ExecutorService clientExecutor = Executors.newFixedThreadPool(numberOfThreads);
+        ExecutorService gameExecutor = Executors.newFixedThreadPool(numberOfThreads / 2);
 
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Pong Server is running...");
 
             while (true) {

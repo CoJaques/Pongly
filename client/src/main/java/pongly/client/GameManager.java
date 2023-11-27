@@ -7,13 +7,11 @@ import pongly.client.InputManager.KeyListener;
 import pongly.common.Ball;
 import pongly.common.DrawableObject;
 import pongly.common.Paddle;
+import pongly.common.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static pongly.common.Utils.SCREEN_HEIGHT;
-import static pongly.common.Utils.SCREEN_WIDTH;
 
 /**
  * This class is responsible for handling the game logic
@@ -34,11 +32,11 @@ public class GameManager implements KeyListener {
      * @throws IOException if an I/O error occurs
      */
     public GameManager(String host, int port) throws IOException {
-        player = new Player(new Score(SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, SCREEN_HEIGHT / 2, 3));
-        opponent = new Player(new Score(SCREEN_WIDTH / 2 + 5, 1), new Paddle(SCREEN_WIDTH - 5, SCREEN_HEIGHT / 2, 3));
-        ball = new Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+        player = new Player(new Score(Utils.SCREEN_WIDTH / 2 - 5, 1), new Paddle(5, Utils.SCREEN_HEIGHT / 2, 3));
+        opponent = new Player(new Score(Utils.SCREEN_WIDTH / 2 + 5, 1), new Paddle(Utils.SCREEN_WIDTH - 5, Utils.SCREEN_HEIGHT / 2, 3));
+        ball = new Ball(Utils.SCREEN_WIDTH / 2, Utils.SCREEN_HEIGHT / 2);
 
-        displayManager = new DisplayManager(SCREEN_WIDTH, SCREEN_HEIGHT);
+        displayManager = new DisplayManager(Utils.SCREEN_WIDTH, Utils.SCREEN_HEIGHT);
         client = new PongClient(host, port, this);
 
         inputHandler = new InputHandler(displayManager);

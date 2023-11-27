@@ -1,8 +1,7 @@
 package pongly.client;
 
 import pongly.common.Paddle;
-
-import static pongly.common.Utils.SCREEN_HEIGHT;
+import pongly.common.Utils;
 
 /**
  * This class is used to represent a player
@@ -60,7 +59,7 @@ public class Player {
      * Move the paddle down
      */
     public void moveDown() {
-        if (paddle.getY() + paddle.getHeight() < SCREEN_HEIGHT - 1)
+        if (paddle.getY() + paddle.getHeight() < Utils.SCREEN_HEIGHT - 1)
             paddle.moveDown();
     }
 }

@@ -39,3 +39,5 @@ build/
 .mvn/wrapper/maven-wrapper.jar
 /.idea/uiDesigner.xml
 /qodana.yaml
+server/dependency-reduced-pom.xml
+.idea/encodings.xml
