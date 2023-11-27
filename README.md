@@ -4,11 +4,7 @@
 
 <br>PONGLY</h1>
 <h3>◦ Level up the fun with Pongly!</h3>
-<h3>◦ Developed with the software and tools below.</h3>
 
-<p align="center">
-<img src="https://img.shields.io/badge/java-%23ED8B00.svg?style=flat-square&logo=openjdk&logoColor=white" alt="java" />
-</p>
 <img src="https://img.shields.io/github/last-commit/CoJaques/Pongly?style=flat-square&color=5D6D7E" alt="git-last-commit" />
 <img src="https://img.shields.io/github/commit-activity/m/CoJaques/Pongly?style=flat-square&color=5D6D7E" alt="GitHub commit activity" />
 <img src="https://img.shields.io/github/languages/top/CoJaques/Pongly?style=flat-square&color=5D6D7E" alt="GitHub top language" />
