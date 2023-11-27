@@ -9,8 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class PongServer {
-    private int port = 1313;
-    private int numberOfThreads = 10;
+    private final int port;
+    private final int numberOfThreads;
     private final List<Party> parties = new ArrayList<>();
 
     public PongServer(int port, int numberOfThreads) {
@@ -31,7 +31,7 @@ public class PongServer {
 
                 ClientHandler handler;
                 try {
-                    handler = new ClientHandler(clientSocket);
+                    handler = new ClientHandler(clientSocket, party);
                 } catch (IOException e) {
                     System.out.println("Error during handler connection : " + e.getMessage());
                     continue;

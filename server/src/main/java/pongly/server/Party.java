@@ -47,6 +47,16 @@ public class Party implements Runnable {
     }
 
     /**
+     * Remove a player to the party
+     *
+     * @param player The player to add
+     */
+    public void removePlayer(ClientHandler player) {
+        players.remove(player);
+        System.out.println("Player : " + player.getId() + " removed from party " + id);
+    }
+
+    /**
      * @return true if the party is full
      */
     public boolean isFull() {
@@ -86,7 +96,7 @@ public class Party implements Runnable {
     }
 
     private boolean playersConnected() {
-        return players.stream().allMatch(ClientHandler::isConnected);
+        return players.size() == 2 && players.stream().allMatch(ClientHandler::isConnected);
     }
 
     private void sendPositions() {
