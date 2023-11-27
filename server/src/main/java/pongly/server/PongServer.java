@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,12 +56,15 @@ public class PongServer {
     }
 
     private void checkPartiesStatus() {
-        for (Party party : parties) {
+        Iterator<Party> iterator = parties.iterator();
+        while (iterator.hasNext()) {
+            Party party = iterator.next();
             if (party.isFinished()) {
-                parties.remove(party);
+                iterator.remove();
                 System.out.println("Destroying party " + party.getId());
             }
         }
+
     }
 
     private Party findAvailableParty() {
