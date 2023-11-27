@@ -1,5 +1,7 @@
 <div align="center">
+<img src="https://github.com/CoJaques/Pongly/assets/91125307/a0c16e8b-e511-4e3a-815d-0627d94de3ea" width="100" />
 <h1 align="center">
+
 <br>PONGLY</h1>
 <h3>◦ Level up the fun with Pongly!</h3>
 <h3>◦ Developed with the software and tools below.</h3>
@@ -21,7 +23,6 @@
     - [🔧 Installation](#-installation)
     - [🤖 Running Pongly](#-running-Pongly)
 - [🤝 Contributing](#-contributing)
-- [👏 Acknowledgments](#-acknowledgments)
 
 ---
 
@@ -98,7 +99,6 @@ java -jar pongly-1.0.jar -H localhost -P 1300
 
 Contributions are welcome! Here are several ways you can contribute:
 
-- **[Submit Pull Requests](https://github.com/CoJaques/Pongly/blob/main/CONTRIBUTING.md)**: Review open PRs, and submit your own PRs.
 - **[Join the Discussions](https://github.com/CoJaques/Pongly/discussions)**: Share your insights, provide feedback, or ask questions.
 - **[Report Issues](https://github.com/CoJaques/Pongly/issues)**: Submit bugs found or log feature requests for COJAQUES.
 
