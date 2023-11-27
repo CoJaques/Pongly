@@ -19,6 +19,8 @@ public class PongClient {
     private final Thread receiverThread = new Thread(this::receive);
     private final int lastSentPosition = 0;
 
+    private boolean isRunning;
+
     /**
      * @param ip          The ip of the server
      * @param port        The port of the server
@@ -36,6 +38,7 @@ public class PongClient {
             throw new IOException("Error while connecting to server: " + e.getMessage());
         }
 
+        isRunning = true;
         receiverThread.start();
     }
 
@@ -79,11 +82,9 @@ public class PongClient {
                 socket.close();
             }
 
-            receiverThread.join();
+            isRunning = false;
         } catch (IOException e) {
             System.out.println("Error while closing connection: " + e.getMessage());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -100,7 +101,7 @@ public class PongClient {
     private void receive() {
         System.out.println("Waiting messages from server...");
         try {
-            while (true) {
+            while (isRunning) {
                 String line = in.readLine();
                 processMessage(line);
             }
