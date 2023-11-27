@@ -118,6 +118,18 @@ public class DisplayManager {
         return screen.readInput();
     }
 
+    /**
+     * @param message The message to display
+     * @throws IOException if an I/O error occurs
+     */
+    public void drawError(String message) throws IOException {
+        screen.clear();
+
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.putString(0, 0, message);
+        screen.refresh();
+    }
+
     private void drawObject(DrawableObject object, TextGraphics textGraphics) {
         for (int i = 0; i < object.getWidth(); i++)
             for (int j = 0; j < object.getHeight(); j++)

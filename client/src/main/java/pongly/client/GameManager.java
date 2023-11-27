@@ -37,7 +37,13 @@ public class GameManager implements KeyListener {
         ball = new Ball(Utils.SCREEN_WIDTH / 2, Utils.SCREEN_HEIGHT / 2);
 
         displayManager = new DisplayManager(Utils.SCREEN_WIDTH, Utils.SCREEN_HEIGHT);
-        client = new PongClient(host, port, this);
+
+        try {
+            client = new PongClient(host, port, this);
+        } catch (IOException e) {
+            displayManager.drawError(e.getMessage());
+            throw e;
+        }
 
         inputHandler = new InputHandler(displayManager);
         inputHandler.addListener(this);
